@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "openclone",
+  "description": "openclone — Create AI clones with categorized personas and converse with them inside Claude Code.",
+  "owner": {
+    "name": "Taurin"
+  },
+  "plugins": [
+    {
+      "name": "openclone",
+      "description": "Create AI clones with categorized personas (vc, dev, founder, pm, designer, writer) and converse with them inside Claude Code. Activate a clone and every following message is answered in that clone's voice; call /oc-<category> for multi-perspective panels.",
+      "source": "./",
+      "category": "productivity",
+      "keywords": ["persona", "clone", "agent", "multi-agent", "panel"]
+    }
+  ]
+}
