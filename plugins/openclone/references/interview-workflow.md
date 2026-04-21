@@ -1,6 +1,6 @@
 # Interview workflow
 
-How Claude conducts a clone-creation interview and consolidates the transcript into a clone file. Loaded by `/oc-new`.
+How Claude conducts a clone-creation interview and consolidates the transcript into a clone file. Loaded by `/openclone:new`.
 
 ## Overall shape
 
@@ -28,7 +28,7 @@ If the user did not supply categories (either in the command or in chat), ask:
 
 > 어떤 카테고리인가요? 다음 중 **하나 이상** 골라주세요 — 둘 이상 맡는 사람이면 복수 선택 OK: **vc**, **dev**, **founder**, **pm**, **designer**, **writer**
 
-Do not proceed until the user names at least one value from this list. If they pick more than one, also ask which is the **primary** category (default lens for `/oc-use`). Parse inputs like `vc`, `vc, founder`, `founder+vc` etc.
+Do not proceed until the user names at least one value from this list. If they pick more than one, also ask which is the **primary** category (default lens for `/openclone:use`). Parse inputs like `vc`, `vc, founder`, `founder+vc` etc.
 
 If the chosen categories are genuinely distinct roles the same person plays (e.g. founder + vc), Stage 3 should cover each category briefly — do not interview for every category at full depth; prioritize the primary one plus 2–3 key questions per additional category.
 
@@ -120,4 +120,4 @@ Also save the raw transcript as supplementary knowledge:
 
 After saving, confirm to the user in one line with the final file path, and suggest:
 
-> `/oc-use <name>` 로 바로 이 클론과 대화를 시작하세요.
+> `/openclone:use <name>` 로 바로 이 클론과 대화를 시작하세요.

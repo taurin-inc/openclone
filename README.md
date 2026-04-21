@@ -5,8 +5,8 @@ Create AI clones with categorized personas and converse with them inside Claude 
 ## What it does
 
 - **Create clones** with one or more categories (`vc`, `dev`, `founder`, `pm`, `designer`, `writer`). One clone = one file = one person; a single clone can belong to multiple categories.
-- **Pick one to talk to** — after `/oc-use <name>`, every message you send is answered in that clone's voice. No further commands needed.
-- **Ask a whole category at once** — `/oc-vc "질문"` broadcasts to every clone whose categories include `vc` and returns each perspective side-by-side.
+- **Pick one to talk to** — after `/openclone:use <name>`, every message you send is answered in that clone's voice. No further commands needed.
+- **Ask a whole category at once** — `/openclone:vc "질문"` broadcasts to every clone whose categories include `vc` and returns each perspective side-by-side.
 - **Feed them knowledge** — URLs, YouTube transcripts, documents; stored in `~/.openclone/` as plain markdown.
 
 Everything lives on your filesystem. No servers, no accounts, no SaaS.
@@ -29,17 +29,17 @@ For local development (no GitHub round-trip):
 /plugin install openclone
 ```
 
-After install, restart Claude Code once. The `/oc-*` commands should autocomplete.
+After install, restart Claude Code once. The `/openclone:*` commands should autocomplete.
 
 ## Usage
 
 ```
-/oc-new hayun                    # create a clone; asks you to pick ≥1 category + runs interview
-/oc-use hayun                    # activate the clone — subsequent chat is with this clone
-/oc-stop                         # deactivate
-/oc-list                         # list all clones with their categories
-/oc-ingest https://blog/post     # add knowledge to the active clone
-/oc-vc "should I fundraise now?" # panel: every clone that includes vc in its categories
+/openclone:new hayun                    # create a clone; asks you to pick ≥1 category + runs interview
+/openclone:use hayun                    # activate the clone — subsequent chat is with this clone
+/openclone:stop                         # deactivate
+/openclone:list                         # list all clones with their categories
+/openclone:ingest https://blog/post     # add knowledge to the active clone
+/openclone:vc "should I fundraise now?" # panel: every clone that includes vc in its categories
 ```
 
 ## Data layout
@@ -70,9 +70,9 @@ A clone file's frontmatter includes `categories: [founder, vc]` (list). Optional
 
 ## How it works
 
-- Each `/oc-*` command is a plain markdown command file under `commands/`.
+- Each `/openclone:*` command is a plain markdown command file under `commands/`.
 - A `UserPromptSubmit` hook (`hooks/inject-active-clone.sh`) reads `~/.openclone/active-clone` (just a clone name) on every message. If set, it injects the clone's persona as additional context so Claude responds as that clone, using the clone's `primary_category` framing (from its `## Category-specific framing` block) as the default lens. If unset, it's a silent no-op.
-- Panel commands (`/oc-vc`, `/oc-dev`, ...) ignore the active clone and broadcast the question to every clone whose frontmatter `categories` list includes that category.
+- Panel commands (`/openclone:vc`, `/openclone:dev`, ...) ignore the active clone and broadcast the question to every clone whose frontmatter `categories` list includes that category.
 - Reference workflows for interview, refinement, and panels live in `references/` — Claude loads them on demand.
 
 ## Status

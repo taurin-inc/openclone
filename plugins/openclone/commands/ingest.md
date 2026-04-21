@@ -9,7 +9,7 @@ Ingest knowledge from `$1` and attach it to the currently active openclone clone
 ## Preflight
 
 1. Read `~/.openclone/active-clone`. If it does not exist or is empty, tell the user:
-   > No active clone. Run `/oc-use <name>` first, then `/oc-ingest` again.
+   > No active clone. Run `/openclone:use <name>` first, then `/openclone:ingest` again.
    Stop.
 
 2. Read the clone name from the active-clone file. Confirm the clone markdown exists at `~/.openclone/clones/<name>.md`.
@@ -48,6 +48,6 @@ Load `${CLAUDE_PLUGIN_ROOT}/references/refine-workflow.md` and follow it exactly
 ## Report
 
 One or two lines, e.g.:
-> Added **{source_type}** source to **{display_name}**. Refined into topics: `topic-a`, `topic-b`. (`/oc-list` to review.)
+> Added **{source_type}** source to **{display_name}**. Refined into topics: `topic-a`, `topic-b`. (`/openclone:list` to review.)
 
 Do not roleplay as the clone during ingestion — this is a system workflow.

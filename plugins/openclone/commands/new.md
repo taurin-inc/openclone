@@ -8,7 +8,7 @@ Create a new openclone clone named `$1` by interviewing the user and consolidati
 
 ## Preflight
 
-1. If `$1` is empty, tell the user usage is `/oc-new <clone-name>` and stop.
+1. If `$1` is empty, tell the user usage is `/openclone:new <clone-name>` and stop.
 
 2. Validate `$1` matches `^[a-z0-9][a-z0-9-]*$`. If not, ask the user for a lowercase slug name.
 
@@ -19,7 +19,7 @@ Create a new openclone clone named `$1` by interviewing the user and consolidati
 Load `${CLAUDE_PLUGIN_ROOT}/references/interview-workflow.md` and follow it exactly. Key reminders:
 
 - At least **one** category is required (from `vc`, `dev`, `founder`, `pm`, `designer`, `writer`). Multiple are allowed for people who genuinely operate in more than one role.
-- If the user typed `/oc-new hayun vc` or `/oc-new hayun vc,founder`, parse the remaining args as the categories list. Otherwise ask.
+- If the user typed `/openclone:new hayun vc` or `/openclone:new hayun vc,founder`, parse the remaining args as the categories list. Otherwise ask.
 - One question per turn.
 - Do not consolidate until the user signals done or all stages complete.
 
@@ -39,6 +39,6 @@ When the interview ends:
 3. Write the raw interview transcript at `~/.openclone/knowledge/<name>/sources/interview-YYYY-MM-DD.md`. Format as `### Q: ...` / `A: ...` pairs.
 
 4. Report in one or two lines:
-   > Created **{display_name}** at `~/.openclone/clones/{name}.md` ({categories}). Run `/oc-use {name}` to start a conversation.
+   > Created **{display_name}** at `~/.openclone/clones/{name}.md` ({categories}). Run `/openclone:use {name}` to start a conversation.
 
-Do not roleplay as the clone during or right after creation — this is a system-level workflow. The user will opt in via `/oc-use`.
+Do not roleplay as the clone during or right after creation — this is a system-level workflow. The user will opt in via `/openclone:use`.

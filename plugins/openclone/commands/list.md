@@ -7,7 +7,7 @@ List every openclone clone the user has defined, showing each clone's categories
 
 Steps:
 
-1. If `~/.openclone/clones/` does not exist or has no `.md` files, tell the user they have no clones yet and suggest `/oc-new <name>`. Stop.
+1. If `~/.openclone/clones/` does not exist or has no `.md` files, tell the user they have no clones yet and suggest `/openclone:new <name>`. Stop.
 
 2. Read the active clone name from `~/.openclone/active-clone` (may not exist).
 
@@ -26,4 +26,4 @@ Steps:
    - If no tagline, show just the display_name.
 
 5. At the end, print a one-line hint:
-   > Run `/oc-use <name>` to activate one, or `/oc-new <name>` to create a new clone.
+   > Run `/openclone:use <name>` to activate one, or `/openclone:new <name>` to create a new clone.

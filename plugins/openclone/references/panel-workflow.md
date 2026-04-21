@@ -1,6 +1,6 @@
 # Category panel workflow
 
-How a `/oc-<category>` command broadcasts a question to every clone that belongs to that category (via its `categories` frontmatter list) and returns side-by-side perspectives.
+How a `/openclone:<category>` command broadcasts a question to every clone that belongs to that category (via its `categories` frontmatter list) and returns side-by-side perspectives.
 
 ## Inputs
 
@@ -9,10 +9,10 @@ How a `/oc-<category>` command broadcasts a question to every clone that belongs
 
 ## Steps
 
-1. **Validate.** If `$ARGUMENTS` is empty, tell the user the usage is `/oc-<category> "질문"` and stop.
+1. **Validate.** If `$ARGUMENTS` is empty, tell the user the usage is `/openclone:<category> "질문"` and stop.
 
 2. **Locate clones.** Read every `.md` file directly under `~/.openclone/clones/` (flat storage — no category subdirectories). Parse each file's frontmatter and **select only those whose `categories` list contains `<category>`**. If the resulting set is empty, tell the user:
-   > No clones in category `<category>` yet. Create one with `/oc-new <name>` and include `<category>`.
+   > No clones in category `<category>` yet. Create one with `/openclone:new <name>` and include `<category>`.
    Stop.
 
 3. **Load clone bodies.** For each selected clone, extract from frontmatter: `name`, `display_name`, `tagline`, `voice_traits`, `categories`. Keep the full body in memory.

@@ -1,6 +1,6 @@
 ---
 name: openclone
-description: Use when the user wants to create, manage, or talk to an openclone "clone" — a named AI persona with one or more categories (vc, dev, founder, pm, designer, writer) and attached knowledge. Triggers on phrases like "create a clone", "make a persona", "talk as <name>", "switch to <name>", "feed knowledge to", "ingest url for <clone>", "ask all VCs", "stop being <name>". Also triggers when the user refers to `/oc-*` commands or wants to understand the openclone system.
+description: Use when the user wants to create, manage, or talk to an openclone "clone" — a named AI persona with one or more categories (vc, dev, founder, pm, designer, writer) and attached knowledge. Triggers on phrases like "create a clone", "make a persona", "talk as <name>", "switch to <name>", "feed knowledge to", "ingest url for <clone>", "ask all VCs", "stop being <name>". Also triggers when the user refers to `/openclone:*` commands or wants to understand the openclone system.
 ---
 
 # openclone
@@ -11,7 +11,7 @@ Openclone lets a user create AI persona "clones" — each a single markdown file
 
 - User asks to create, list, activate, deactivate, or delete a clone.
 - User asks to feed knowledge (URL, YouTube, file, text) to a clone.
-- User runs any `/oc-*` slash command or references one by name.
+- User runs any `/openclone:*` slash command or references one by name.
 - User asks "what is openclone" or how the persona system works.
 - User wants a multi-perspective panel answer from a category (e.g. "ask all the VCs").
 
@@ -26,12 +26,12 @@ Direct slash commands are the main interface:
 
 | Command | Purpose |
 |---|---|
-| `/oc-new <name>` | Create a clone via interactive interview (≥1 category required, multi-category allowed). See `references/interview-workflow.md`. |
-| `/oc-use <name>` | Activate a clone — subsequent messages answered as this clone, using its `primary_category` framing. |
-| `/oc-stop` | Deactivate the active clone. |
-| `/oc-list` | List clones with their categories, marking active. |
-| `/oc-ingest <source>` | Add knowledge to the active clone. See `references/refine-workflow.md`. |
-| `/oc-<category> "<q>"` | Panel: every clone whose `categories` includes `<category>` answers `<q>`, with that category's framing applied. See `references/panel-workflow.md`. |
+| `/openclone:new <name>` | Create a clone via interactive interview (≥1 category required, multi-category allowed). See `references/interview-workflow.md`. |
+| `/openclone:use <name>` | Activate a clone — subsequent messages answered as this clone, using its `primary_category` framing. |
+| `/openclone:stop` | Deactivate the active clone. |
+| `/openclone:list` | List clones with their categories, marking active. |
+| `/openclone:ingest <source>` | Add knowledge to the active clone. See `references/refine-workflow.md`. |
+| `/openclone:<category> "<q>"` | Panel: every clone whose `categories` includes `<category>` answers `<q>`, with that category's framing applied. See `references/panel-workflow.md`. |
 
 If the user asks for one of these in natural language, offer to run the corresponding command but prefer explicit command invocation so the user sees what's happening.
 
@@ -67,10 +67,10 @@ The hook is no-op when:
 
 - `references/clone-schema.md` — clone file format (frontmatter + sections, including multi-category rules)
 - `references/categories.md` — fixed category list and per-category "always checks" axes
-- `references/interview-workflow.md` — how `/oc-new` conducts and consolidates the interview
-- `references/refine-workflow.md` — how `/oc-ingest` turns raw sources into refined topic files
-- `references/panel-workflow.md` — how `/oc-<category>` produces multi-clone panel output
-- `assets/clone-template.md` — starter template for hand-authored clones (bypassing `/oc-new`)
+- `references/interview-workflow.md` — how `/openclone:new` conducts and consolidates the interview
+- `references/refine-workflow.md` — how `/openclone:ingest` turns raw sources into refined topic files
+- `references/panel-workflow.md` — how `/openclone:<category>` produces multi-clone panel output
+- `assets/clone-template.md` — starter template for hand-authored clones (bypassing `/openclone:new`)
 
 ## Editing clones manually
 

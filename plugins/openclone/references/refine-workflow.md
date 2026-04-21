@@ -2,7 +2,7 @@
 
 How Claude turns raw ingested material (scraped URL, YouTube transcript, pasted text, document) into topic-organized markdown under `~/.openclone/knowledge/<name>/refined/`.
 
-Loaded by `/oc-ingest`.
+Loaded by `/openclone:ingest`.
 
 ## Goal
 
