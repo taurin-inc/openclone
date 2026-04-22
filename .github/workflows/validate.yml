@@ -1,0 +1,37 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Validate plugin and marketplace manifests
+        run: node .github/scripts/validate-plugin.ts
+
+      - name: Validate command frontmatter
+        run: node .github/scripts/validate-commands.ts
+
+      - name: Validate clone schema
+        run: node .github/scripts/validate-clones.ts
+
+      - name: Shellcheck hooks and scripts
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: "."
+          additional_files: "hooks/inject-active-clone.sh scripts/fetch-url.sh scripts/fetch-youtube.sh"
+          severity: error
+
+      - name: Markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: "**/*.md"

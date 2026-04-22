@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# openclone uninstall — remove plugin registration and delete this checkout.
+#
+# Removes `openclone@openclone` from ~/.claude/settings.json `enabledPlugins`
+# and deletes ~/.claude/plugins/marketplaces/openclone. Leaves ~/.openclone
+# (user data: active-clone, user clones, user knowledge) untouched.
+
+set -eu
+
+expected_dir="$HOME/.claude/plugins/marketplaces/openclone"
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ "$here" != "$expected_dir" ]; then
+  printf 'warning: uninstall invoked from %s (expected %s)\n' "$here" "$expected_dir" >&2
+  printf '         continuing with settings cleanup; manual rm -rf may be needed.\n' >&2
+fi
+
+settings_file="$HOME/.claude/settings.json"
+
+if [ -f "$settings_file" ] && command -v python3 >/dev/null 2>&1; then
+  python3 - "$settings_file" <<'PY'
+import json, os, sys
+
+path = sys.argv[1]
+try:
+    with open(path, "r") as f:
+        data = json.load(f)
+except Exception:
+    sys.exit(0)
+
+if not isinstance(data, dict):
+    sys.exit(0)
+
+enabled = data.get("enabledPlugins")
+if isinstance(enabled, dict) and "openclone@openclone" in enabled:
+    del enabled["openclone@openclone"]
+    if not enabled:
+        del data["enabledPlugins"]
+
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+PY
+fi
+
+# Remove the checkout last (this script lives inside it).
+if [ "$here" = "$expected_dir" ]; then
+  cd "$HOME"
+  rm -rf "$expected_dir"
+fi
+
+cat <<'MSG'
+openclone uninstalled.
+
+Claude Code registration removed from ~/.claude/settings.json.
+Plugin directory removed (~/.claude/plugins/marketplaces/openclone).
+
+User data preserved at ~/.openclone/ (active-clone pointer, user clones, user knowledge).
+To remove user data too: rm -rf ~/.openclone
+MSG

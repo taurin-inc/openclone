@@ -1,0 +1,50 @@
+---
+topic: "HRBP vs HR Function 비교 분석"
+source_type: other
+source_url: "https://brunch.co.kr/@iid-hr/144"
+authorship: self
+published_at: 2025-04-07
+---
+# [iid] HRBP vs HR Function 비교
+
+**by iid 이드**
+**Apr 7. 2025**
+
+**[Edited by iid the HRer]**
+
+**※ Quicknote는 '스타트업HR모험기'의 쇼츠(Shorts) 버젼으로 개인적인 경험/고민을 바탕으로 작성되었다.**
+
+**✅ 고민/상담이 있다면 커피챗 w iid' ([신청 링크](https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0s-5vbV0GV64A2-8gpJfkwKKuszTJjFild5cSOtLCnR0aF-CAcKbRdl2OiD7mKisODGPmx4mTb))**
+
+---
+
+## **① HRBP vs HR Function : R&R 비교**
+
+조직이 성장하면서 HR 체계를 고민할 때 빠지지 않고 나오는 주제가 바로 이 두 가지다
+
+HRBP 체제: 현업과 긴밀히 연결된 파트너 중심 구조
+
+HR Function 체제: 기능 중심의 전문화된 운영 구조
+
+어느 것이 더 좋은지는 조직마다 다르다. 중요한 건 “우리 조직에는 무엇이 더 적합한가”에 대한 냉정한 판단이다.
+
+![](https://img1.daumcdn.net/thumb/R1280x0.fpng/?fname=http://t1.daumcdn.net/brunch/service/user/7Ymi/image/TGsoJtYbQUeHHhyLP7rRQmmBIXw.png)
+
+---
+
+## **② HRBP vs HR Function : KPI 비교**
+
+Function 체계는 안정성과 일관성을 통해 HR의 '백오피스적 가치'를 강화한다. 반면 HRBP 체계는 조직별 '프런트 성과 정렬'을 통해 HR의 존재 이유를 실무에 가깝게 재정의한다.
+
+KPI는 그 구조가 지향하는 철학과 목적의 반영이다. 운영 중심으로 정렬된 KPI는 기준을 정하고, 비즈니스 중심으로 설계된 KPI는 행동을 유도한다.
+
+두 가지를 병행하거나 전환하려면, 숫자만이 아니라 생각의 기준부터 함께 맞춰야 한다
+
+![](https://img1.daumcdn.net/thumb/R1280x0.fpng/?fname=http://t1.daumcdn.net/brunch/service/user/7Ymi/image/x-02uVO_elMsXLkegXoPygtjb5o.png)
+
+---
+
+※ 전체 Full version은 아래 링크를 확인바랍니다.
+
+**[[iid] HRBP 무조건 좋은건가요? 꼭 해야하나요?](https://brunch.co.kr/@iid-hr/51)**
+이드의 HR 개똥철학 시리즈 | [Edited by iid the HRer] ※ 내가 쓰는 글들은 개인적인 경험과 고민을 바탕으로 한 지극히 개인적인 의견이니, 편하게 봐주면 좋겠다. ✅ '비즈니스 미팅 / 커피챗 w iid' ( https://brunch.co.kr/@iid-hr/51 )

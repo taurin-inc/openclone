@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# openclone setup — register this checkout as an enabled Claude Code plugin.
+#
+# Expected to be run from the install location:
+#   ~/.claude/plugins/marketplaces/openclone
+#
+# Registers `openclone@openclone` in ~/.claude/settings.json under `enabledPlugins`,
+# preserving any other keys/values in that file. Idempotent.
+
+set -eu
+
+expected_dir="$HOME/.claude/plugins/marketplaces/openclone"
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ "$here" != "$expected_dir" ]; then
+  printf 'error: setup must be run from %s\n' "$expected_dir" >&2
+  printf '       current location: %s\n' "$here" >&2
+  printf '\nRe-run the README install command to clone into the correct path.\n' >&2
+  exit 1
+fi
+
+settings_file="$HOME/.claude/settings.json"
+mkdir -p "$HOME/.claude"
+
+if ! command -v python3 >/dev/null 2>&1; then
+  printf 'error: python3 is required for setup (used to safely edit settings.json)\n' >&2
+  exit 1
+fi
+
+python3 - "$settings_file" <<'PY'
+import json, os, sys
+
+path = sys.argv[1]
+data = {}
+if os.path.exists(path):
+    try:
+        with open(path, "r") as f:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            data = {}
+    except Exception:
+        data = {}
+
+enabled = data.get("enabledPlugins")
+if not isinstance(enabled, dict):
+    enabled = {}
+
+enabled["openclone@openclone"] = True
+data["enabledPlugins"] = enabled
+
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+PY
+
+mkdir -p "$HOME/.openclone"
+
+cat <<'MSG'
+openclone installed.
+
+Activate:
+  • In a running Claude Code session: run /reload-plugins
+    (hot-loads the plugin, no restart)
+  • First time / if /reload-plugins does not pick up enabledPlugins:
+    restart Claude Code once.
+
+Then try:
+  /openclone:list               — see built-in clones
+  /openclone:use <name>         — activate a clone (first use lazy-fetches its knowledge)
+  /openclone:<category> "..."   — panel query (vc, dev, founder, pm, designer, writer, marketing, hr)
+
+Auto-update: enabled. Runs in the background once per hour on session start.
+  Disable with: touch ~/.openclone/no-auto-update
+  Re-enable:    rm ~/.openclone/no-auto-update
+
+Uninstall: run ./uninstall from this directory.
+MSG

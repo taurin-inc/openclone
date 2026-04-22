@@ -1,0 +1,145 @@
+# 기여 안내
+
+openclone에 기여해 주셔서 감사합니다. 이 문서는 로컬 개발 루프와 변경 유형별 작업 가이드, PR 절차를 다룹니다. 아키텍처 심화 설명은 [docs/architecture.md](docs/architecture.md)를 참고해 주세요.
+
+## 로컬 개발 루프
+
+openclone은 빌드 시스템도, 패키지 매니저도 없습니다. 저장소 자체가 플러그인 + 마켓플레이스입니다.
+
+```
+/plugin marketplace add /absolute/path/to/openclone
+/plugin install openclone
+```
+
+편집 후:
+
+- **커맨드·레퍼런스·클론 파일(`.md`)** 편집은 Claude Code에서 즉시 반영됩니다.
+- **훅(`hooks/*.sh`, `hooks.json`)·플러그인 메타데이터(`.claude-plugin/*.json`)** 를 편집했다면 Claude Code를 한 번 재시작해야 반영됩니다.
+
+배포는 "main 브랜치에 커밋 → 사용자가 `/plugin marketplace update openclone`"이 전부입니다.
+
+## 디렉터리 지도
+
+```
+.claude-plugin/         플러그인 메타데이터 (plugin.json, marketplace.json)
+commands/               슬래시 커맨드 정의 (.md)
+hooks/                  UserPromptSubmit 훅 + hooks.json
+references/             on-demand로 로드되는 워크플로우 문서
+skills/openclone/       자연어 진입 스킬 (SKILL.md)
+scripts/                URL·YouTube 인제스트 보조 스크립트
+clones/                 내장 프리셋 클론 (읽기 전용)
+assets/                 이미지·로고 등 리소스
+docs/                   사람용 개발자 문서
+```
+
+## 변경 유형별 가이드
+
+### 새 슬래시 커맨드 추가
+
+1. `commands/<name>.md` 생성. 최소 frontmatter:
+   ```yaml
+   ---
+   description: 한 줄 설명
+   allowed-tools: Bash, Read          # 커맨드가 실제로 쓰는 도구만
+   argument-hint: "<required-arg>"    # 인자를 받을 때만
+   ---
+   ```
+2. 본문은 Claude가 실행할 프롬프트입니다. `${CLAUDE_PLUGIN_ROOT}/references/<name>.md`를 `Load ...` 지시로 불러오는 lazy-load 패턴을 권장합니다.
+3. 자연어로도 부를 수 있게 하려면 `skills/openclone/SKILL.md`에 트리거 힌트를 추가합니다.
+
+### 새 레퍼런스 추가
+
+`references/*.md`에 워크플로우 문서를 두고, 관련 커맨드에서 `Load ${CLAUDE_PLUGIN_ROOT}/references/<name>.md`로 끌어씁니다. 이렇게 하면 각 커맨드의 컨텍스트를 작게 유지할 수 있습니다. 워크플로우 변경 시 커맨드 파일 6개를 일일이 고칠 필요 없이 레퍼런스 하나만 고치면 됩니다.
+
+### 새 내장 클론 추가
+
+1. `clones/<name>/persona.md` 생성 — frontmatter 스펙은 [references/clone-schema.md](references/clone-schema.md)를 그대로 따릅니다. 필수 키: `name`·`display_name`·`tagline`·`categories`·`created`·`voice_traits`.
+2. 본문 섹션 순서: `## Persona` → `## Speaking style` → `## Guidelines` → `## Background`. 필요 시 `## Category-specific framing` 추가.
+3. 내장 지식을 함께 싣는다면 `clones/<name>/knowledge/YYYY-MM-DD-<topic>.md` 형식으로 클론 폴더 안에 함께 둡니다. 각 클론의 `knowledge/` 서브폴더는 설치 시 sparse-excluded(`!/clones/*/knowledge/`)이고 `/openclone:use <name>` 최초 호출에만 fetch되므로 내용이 많아도 install 크기에 영향 없습니다.
+4. `categories` 값은 고정 8개(`vc`, `dev`, `founder`, `pm`, `designer`, `writer`, `marketing`, `hr`) 중에서만 고릅니다.
+5. `persona.md`에 **import 푸터나 "Knowledge index" 섹션을 넣지 마세요**. 신규 클론은 페르소나 본문만 포함합니다.
+
+### 새 카테고리 추가 (v1은 고정)
+
+카테고리를 늘리려면 네 곳을 동시에 수정해야 합니다. 반만 반영하면 패널이 깨집니다.
+
+1. `commands/<cat>.md` 신규 생성 (vc·dev 등 기존 패널 커맨드 복사 후 카테고리 코드만 교체)
+2. `references/categories.md` 갱신
+3. `skills/openclone/SKILL.md`에서 해당 카테고리를 인식하도록 수정
+4. `README.md` 카테고리 표 갱신
+
+### 훅 편집
+
+- `hooks/inject-active-clone.sh`를 편집한 뒤에는 Claude Code 재시작 후 `/openclone:use <clone>` → 실제 메시지 전송으로 재현하세요.
+- heredoc 본문 안에 `'`(apostrophe)를 쓰면 셸 파싱이 깨집니다. 축약형(`clone's`) 대신 "this clone"이나 곡선 따옴표를 사용하세요.
+- python3 경로와 sed/awk 폴백 두 가지 모두 점검해야 합니다(macOS는 기본적으로 python3 경로로만 돌아갑니다).
+
+## 불변 원칙
+
+- **fork-on-write** — `${CLAUDE_PLUGIN_ROOT}/` 아래 내장 클론은 절대 수정하지 않습니다. 사용자가 내장 클론에 지식을 주입하면 `/openclone:ingest`가 먼저 `~/.openclone/clones/`로 폴더를 복사하고 사용자 복사본만 편집합니다.
+- **지식 append-only** — 같은 토픽의 이전 파일을 덮어쓰지 않습니다. 새 날짜의 파일이 새로 추가될 뿐입니다. 훅이 Claude에게 최신 파일에 더 높은 가중치를 두도록 지시합니다.
+- **이모지 금지** — 클론 출력, 커맨드 정의, 레퍼런스, 문서 모두 이모지를 쓰지 않습니다(사용자가 명시적으로 요청한 경우 제외).
+- **경로 추상화** — 커맨드 마크다운에서 배포 파일은 `${CLAUDE_PLUGIN_ROOT}`, 사용자 상태는 `$HOME/.openclone` 또는 `~/.openclone`. 절대 경로 하드코딩 금지.
+
+## 버저닝
+
+- `.claude-plugin/plugin.json`의 `version`을 **수동으로** 증가시킵니다. 동작 변경 시 minor, 호환성 깨짐 시 major를 올립니다. v1 이전에는 SemVer를 간이 적용합니다.
+- 버전을 올리면 같은 PR에서 `CHANGELOG.md`에 해당 엔트리를 추가합니다.
+
+## 커밋 컨벤션
+
+[Conventional Commits](https://www.conventionalcommits.org/)를 권장합니다.
+
+- `feat:` 새 기능
+- `fix:` 버그 수정
+- `docs:` 문서 전용
+- `chore:` 유지보수(메타데이터·설정)
+- `refactor:` 동작 변경 없는 구조 개선
+- `ci:` CI 설정
+
+예: `feat(commands): add /openclone:export`
+
+## PR 절차
+
+1. 이슈를 먼저 올려 범위와 접근을 정렬합니다(사소한 오타 수정 제외).
+2. 브랜치를 만들어 작업합니다.
+3. 변경 사항을 로컬 마켓플레이스 재설치로 **수동 스모크 테스트**합니다.
+4. PR을 생성하면 `.github/workflows/validate.yml`이 자동으로 돌아갑니다. 실패하면 로그를 확인해 수정합니다.
+5. 리뷰 반영 후 squash merge.
+
+## CI 로컬 재현
+
+PR 전에 로컬에서 같은 검사를 돌려볼 수 있습니다. 플러그인 런타임은 마크다운 + 셸이지만 **검증 스크립트(`.github/scripts/*.ts`)는 TypeScript**입니다. `package.json`·`node_modules`는 없고 설치 단계도 없습니다 — Node만 있으면 바로 실행.
+
+**Node 24+ (권장)** — 23.6부터 네이티브 TS 실행이 기본 켜져 있어 플래그 없이 바로 돕니다:
+
+```bash
+node .github/scripts/validate-plugin.ts
+node .github/scripts/validate-commands.ts
+node .github/scripts/validate-clones.ts
+```
+
+**Node 22.6 ~ 23.5** — `--experimental-strip-types` 플래그가 필요합니다. 한 번씩 붙여도 되고, 세션 전체에 적용하려면 환경변수로:
+
+```bash
+export NODE_OPTIONS="--experimental-strip-types"
+node .github/scripts/validate-plugin.ts
+# …
+```
+
+나머지 두 검사:
+
+```bash
+shellcheck hooks/*.sh scripts/*.sh
+npx markdownlint-cli2 "**/*.md"
+```
+
+Node는 `.ts` 파일의 타입 주석을 스트리핑해 그대로 실행합니다. 컴파일·빌드 단계는 없습니다.
+
+## 행동 규범
+
+기여자 커뮤니티는 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)를 따릅니다. 위반 신고는 `hayun@rapidstudio.dev`로 보내주세요.
+
+## 보안
+
+취약점을 발견했다면 공개 이슈 대신 [SECURITY.md](SECURITY.md)의 절차로 제보해 주세요.

@@ -1,0 +1,7 @@
+.DS_Store
+*.swp
+*.swo
+.vscode/
+.idea/
+.context/
+.clora-data/
