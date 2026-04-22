@@ -40,6 +40,8 @@
 
 > **실존 인물 내장 클론 관련.** openclone에 내장된 인물 클론은 공개된 발언·글을 기반으로 구성됐습니다. 본인이신 경우 확인·정정·제거를 요청하실 수 있습니다 — 자세한 내용은 [옵트인 정책](#옵트인-정책-실존-인물-클론) 참고.
 
+<!-- -->
+
 > **v2.0 breaking change.** openclone은 Claude Code **플러그인**에서 **Standalone skill**로 전환됐습니다. 설치 경로가 `~/.claude/plugins/marketplaces/openclone` → `~/.claude/skills/openclone` 으로 바뀌었고, 슬래시 커맨드는 `/openclone:openclone`이 아니라 `/openclone`으로 직접 호출됩니다. 이전 버전을 쓰고 있었다면 [재설치 안내](#이전-v1-플러그인-설치를-사용-중이라면) 참고.
 
 ---
