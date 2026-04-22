@@ -1,6 +1,6 @@
 // Validate clones/*/persona.md against references/clone-schema.md.
 // - Required frontmatter keys: name, display_name, tagline, categories, created, voice_traits
-// - categories is a non-empty list with values from the fixed 8-category list
+// - categories is a non-empty list with values from the fixed 7-category list
 // - primary_category (if present) must be in categories
 // - Required body sections exist: ## Persona, ## Speaking style, ## Guidelines, ## Background
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
@@ -20,7 +20,15 @@ const REQUIRED_KEYS = [
   "voice_traits",
 ] as const;
 
-const FIXED_CATEGORIES = new Set(["vc", "dev", "founder", "pm", "designer", "writer", "marketing", "hr"]);
+const FIXED_CATEGORIES = new Set([
+  "vc",
+  "tech",
+  "founder",
+  "expert",
+  "influencer",
+  "politician",
+  "celebrity",
+]);
 const REQUIRED_SECTIONS = ["## Persona", "## Speaking style", "## Guidelines", "## Background"];
 
 function fail(msgs: string[]): never {

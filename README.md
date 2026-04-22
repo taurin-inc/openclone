@@ -30,7 +30,7 @@
 
 - **단일 진입점 `/openclone`** — `/openclone`만 치면 홈 패널이 뜹니다. 카테고리별로 그룹핑된 클론 목록에서 번호나 이름으로 바로 선택.
 - **기본 내장 클론을 바로 사용** — 스킬에 큐레이션된 프리셋 클론이 함께 배포됩니다(예: `douglas` / 권도균). 설치 직후 활성화하거나 패널 브로드캐스트로 질문할 수 있습니다.
-- **나만의 클론 만들기** — 카테고리(`vc`, `dev`, `founder`, `pm`, `designer`, `writer`, `marketing`, `hr`) 하나 이상을 선택해 생성합니다. 하나의 클론은 여러 카테고리에 속할 수 있지만 파일은 하나입니다.
+- **나만의 클론 만들기** — 카테고리(`vc`, `tech`, `founder`, `expert`, `influencer`, `politician`, `celebrity`) 하나 이상을 선택해 생성합니다. 하나의 클론은 여러 카테고리에 속할 수 있지만 파일은 하나입니다.
 - **클론 한 명과 대화** — `/openclone <name>` 이후 보내는 모든 메시지는 그 클론의 목소리로 응답됩니다.
 - **단체 대화방(room)** — `/openclone room <A> <B> <C>`로 여러 클론을 한 방에 모아두고 자연스럽게 대화하면, 질문의 성격에 따라 **가장 적절한 1명**(필요시 뚜렷이 다른 2명)이 자동 응답.
 - **카테고리 패널** — `/openclone panel vc "질문"`은 `vc`를 포함한 모든 클론(내장 + 사용자)에게 동시에 질문하고, 각 관점을 나란히 돌려줍니다.
@@ -57,7 +57,7 @@ Claude Code 세션에 아래 문단을 그대로 붙여넣으세요:
 ```text
 Install openclone: run
   git clone --filter=blob:none --sparse --depth=1 https://github.com/taurin-inc/openclone.git ~/.claude/skills/openclone && cd ~/.claude/skills/openclone && git sparse-checkout set --no-cone '/*' '!/clones/*/knowledge/' && ./setup
-then restart Claude Code (or start a new session) so the skill's hooks are picked up. Add an "openclone" section to ~/.claude/CLAUDE.md briefly explaining what openclone is: a single slash command `/openclone` that opens a home panel of AI persona clones grouped by category (vc, dev, founder, pm, designer, writer, marketing, hr). Subcommands: `/openclone <name|N>` activates a clone, `/openclone room <A> <B> ...` opens a group chat where the most relevant clone auto-responds, `/openclone panel <category> "..."` broadcasts to all clones in that category, `/openclone new` creates a clone, `/openclone ingest <url|path>` feeds knowledge, `/openclone stop` exits. Knowledge for a built-in clone is lazy-fetched on first activation. Finally, confirm the skill loaded by running /openclone and show me the output.
+then restart Claude Code (or start a new session) so the skill's hooks are picked up. Add an "openclone" section to ~/.claude/CLAUDE.md briefly explaining what openclone is: a single slash command `/openclone` that opens a home panel of AI persona clones grouped by category (vc, tech, founder, expert, influencer, politician, celebrity). Subcommands: `/openclone <name|N>` activates a clone, `/openclone room <A> <B> ...` opens a group chat where the most relevant clone auto-responds, `/openclone panel <category> "..."` broadcasts to all clones in that category, `/openclone new` creates a clone, `/openclone ingest <url|path>` feeds knowledge, `/openclone stop` exits. Knowledge for a built-in clone is lazy-fetched on first activation. Finally, confirm the skill loaded by running /openclone and show me the output.
 ```
 
 Claude Code가 직접 클론·`./setup`을 실행하고, 앞으로의 세션에서 openclone을 자연스럽게 인식하도록 `~/.claude/CLAUDE.md`에 메모를 추가합니다.
@@ -182,7 +182,7 @@ cd ~/.claude/skills/openclone && ./uninstall
 - *지식*: **누적형** — 훅은 활성 클론(또는 방 멤버 전원)의 두 knowledge 디렉터리를 모두 읽고, 같은 토픽이 여러 파일에 있을 경우 최신 날짜에 더 높은 가중치를 두도록 Claude에 지시합니다.
 - *모드*: room이 열려 있으면 room이 우선. room이 닫혀 있고 active-clone이 있으면 단일 클론 모드. 둘 다 없으면 기본 Claude.
 
-`persona.md` frontmatter에는 `categories: [founder, vc]`(리스트)가 포함됩니다. 필요하면 `## Category-specific framing` 섹션으로 카테고리별 강조를 덧붙일 수 있습니다. 순수 마크다운이므로 복사·수정·버전 관리·공유가 자유롭습니다.
+`persona.md` frontmatter에는 `categories: [founder, vc]`(리스트, 위 표의 슬러그 사용)가 포함됩니다. 필요하면 `## Category-specific framing` 섹션으로 카테고리별 강조를 덧붙일 수 있습니다. 순수 마크다운이므로 복사·수정·버전 관리·공유가 자유롭습니다.
 
 지식 파일은 날짜와 토픽 이름이 붙은 형식(`2026-04-21-투자철학.md`)이며, 소스 메타데이터를 frontmatter에 둡니다. 저장은 append-only입니다: 같은 토픽을 이후에 다시 주입해도 덮어쓰지 않고 새 파일이 생기므로, 클론의 관점 변화가 그대로 보존됩니다.
 
@@ -191,13 +191,12 @@ cd ~/.claude/skills/openclone && ./uninstall
 | 코드 | 렌즈 |
 | --- | --- |
 | `vc` | 투자자 — 시장, 팀, 트랙션, 엑싯, 리스크 |
-| `dev` | 엔지니어 — 설계, 성능, 유지보수성, 보안 |
+| `tech` | 엔지니어/기술가 — 설계, 성능, 유지보수성, 보안 |
 | `founder` | 창업가 — 비즈니스 모델, 팀, 실행, 펀딩 |
-| `pm` | 프로덕트 — 사용자, KPI, 우선순위, 로드맵 |
-| `designer` | 디자이너 — UX, 비주얼, 브랜드, 프로토타입 |
-| `writer` | 작가/편집자 — 구조, 명료성, 독자, 톤 |
-| `marketing` | 마케터 — 오디언스, 포지셔닝, 채널, CAC |
-| `hr` | 피플옵스 — 채용, 레벨링, 컬처, 리텐션 |
+| `expert` | 도메인 전문가 — 마케팅·HR·재무·법무 등 기능 영역의 정석과 예외 |
+| `influencer` | 크리에이터 — 플랫폼, 후크, 오디언스, 수익화 |
+| `politician` | 정치인/정책가 — 이해관계, 연합, 법제, 커뮤니케이션 |
+| `celebrity` | 연예인/공인 — 페르소나, 작품 선택, 이미지·PR 리스크 |
 
 ## 작동 방식
 
@@ -212,7 +211,7 @@ cd ~/.claude/skills/openclone && ./uninstall
 
 - 클론 공유 / 가져오기 — 다른 사람이 만든 클론 폴더를 간편히 설치
 - 지식 내보내기·백업 — `~/.openclone/` 스냅샷과 복원
-- 카테고리 커스터마이즈 — v1 고정 8개 외의 사용자 정의 카테고리 (v2 후보)
+- 카테고리 커스터마이즈 — v1 고정 7개 외의 사용자 정의 카테고리 (v2 후보)
 - 패널 응답 포맷 개선 — 비교 표, 합의/반대 지점 요약
 
 구체적 우선순위와 디자인은 이슈/Discussions에서 논의합니다. PR 환영.
@@ -253,7 +252,7 @@ mkdir -p clones/hyun
 name: hyun                         # 폴더 이름과 동일한 슬러그(소문자, 영숫자·하이픈)
 display_name: 김현                  # 목록과 패널에 표시될 이름
 tagline: 백엔드 엔지니어·시스템 디자인    # 한 줄 소개 (80자 이하)
-categories: [dev]                  # 고정 8개 중 1개 이상 (리스트 형식)
+categories: [tech]                 # 고정 7개 중 1개 이상 (리스트 형식)
 created: 2026-04-22                # ISO 날짜
 voice_traits:                      # 3–5개의 짧은 톤 태그
   - concrete
@@ -293,10 +292,10 @@ voice_traits:                      # 3–5개의 짧은 톤 태그
 
 #### 3. 카테고리 선택
 
-`categories`는 아래 고정 8개 중에서만 고를 수 있습니다(위 카테고리 표 참고).
+`categories`는 아래 고정 7개 중에서만 고를 수 있습니다(위 카테고리 표 참고).
 
 ```text
-vc · dev · founder · pm · designer · writer · marketing · hr
+vc · tech · founder · expert · influencer · politician · celebrity
 ```
 
 클론이 여러 카테고리에 속하면 각 `/openclone panel <category>` 호출에 모두 참여합니다. 패널마다 강조점이 달라야 한다면 `## Category-specific framing`을, 기본 렌즈를 지정하고 싶다면 `primary_category: <값>`(반드시 `categories` 안에 있는 값)을 frontmatter에 추가합니다.

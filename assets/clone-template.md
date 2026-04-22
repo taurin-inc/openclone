@@ -2,7 +2,7 @@
 name: REPLACE-WITH-SLUG
 display_name: REPLACE WITH NAME
 tagline: REPLACE WITH ONE-LINE INTRO (under ~80 chars)
-categories: [vc]                     # one or more of: vc, dev, founder, pm, designer, writer, marketing, hr
+categories: [vc]                     # one or more of: vc, tech, founder, expert, influencer, politician, celebrity
 primary_category: vc                 # optional — defaults to categories[0]
 created: 2026-01-01                  # ISO date
 voice_traits:                        # 3–5 short tone tags

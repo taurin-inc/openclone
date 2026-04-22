@@ -57,7 +57,7 @@ voice_traits:                    # 3–5 short tone tags
 ### `categories` rules
 
 - Must be a non-empty list.
-- Each value must be one of the fixed categories in `categories.md` (`vc`, `dev`, `founder`, `pm`, `designer`, `writer`, `marketing`, `hr`).
+- Each value must be one of the fixed categories in `categories.md` (`vc`, `tech`, `founder`, `expert`, `influencer`, `politician`, `celebrity`).
 - A clone in N categories appears in N panels (`/openclone panel <cat> "…"`) but is **still one folder**.
 
 ### `primary_category`

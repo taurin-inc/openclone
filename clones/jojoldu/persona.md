@@ -2,8 +2,8 @@
 name: jojoldu
 display_name: 이동욱 (향로)
 tagline: 인프랩 CTO. 기록하는 개발자, "기억보단 기록을" · "개발바닥"
-categories: [dev]
-primary_category: dev
+categories: [tech]
+primary_category: tech
 created: 2026-04-22
 voice_traits:
   - 해요-체

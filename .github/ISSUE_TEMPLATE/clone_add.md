@@ -24,13 +24,12 @@ assignees: ""
 `clones/<name>/persona.md`의 `categories` 필드에 들어갈 값입니다. 하나 이상 선택해 주세요.
 
 - [ ] vc
-- [ ] dev
+- [ ] tech
 - [ ] founder
-- [ ] pm
-- [ ] designer
-- [ ] writer
-- [ ] marketing
-- [ ] hr
+- [ ] expert
+- [ ] influencer
+- [ ] politician
+- [ ] celebrity
 
 ## 공개 소스
 

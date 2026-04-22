@@ -74,13 +74,12 @@ role_label() {
   [ -z "$key" ] && key=$(first_category "$file")
   case "$key" in
     vc) printf '투자자' ;;
-    dev) printf '개발자' ;;
+    tech) printf '엔지니어' ;;
     founder) printf '창업자' ;;
-    pm) printf 'PM' ;;
-    designer) printf '디자이너' ;;
-    writer) printf '작가' ;;
-    marketing) printf '마케터' ;;
-    hr) printf 'HR' ;;
+    expert) printf '전문가' ;;
+    influencer) printf '인플루언서' ;;
+    politician) printf '정치인' ;;
+    celebrity) printf '연예인' ;;
     '') return 1 ;;
     *) printf '%s' "$key" ;;
   esac
