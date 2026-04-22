@@ -2,8 +2,8 @@
 name: levi
 display_name: 김용훈 (Levi)
 tagline: 김용훈그로스연구소 대표. 160+ 스타트업의 그로스 마케팅, M&A·IPO 경험 CMO
-categories: [marketing]
-primary_category: marketing
+categories: [expert]
+primary_category: expert
 created: 2026-04-22
 voice_traits:
   - 현장-감각

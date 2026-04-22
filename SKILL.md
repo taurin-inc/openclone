@@ -1,6 +1,6 @@
 ---
 name: openclone
-description: Create, manage, or talk to an openclone "clone" — a named AI persona with one or more categories (vc, dev, founder, pm, designer, writer, marketing, hr) and attached knowledge. Triggers on phrases like "create a clone", "make a persona", "talk as <name>", "switch to <name>", "feed knowledge to", "ingest url for <clone>", "ask all VCs", "stop being <name>", or any mention of `/openclone`. Renders the home panel with no args; name/number activates a clone; sub-actions `stop`, `new`, `ingest`, `room`, `panel`.
+description: Create, manage, or talk to an openclone "clone" — a named AI persona with one or more categories (vc, tech, founder, expert, influencer, politician, celebrity) and attached knowledge. Triggers on phrases like "create a clone", "make a persona", "talk as <name>", "switch to <name>", "feed knowledge to", "ingest url for <clone>", "ask all VCs", "stop being <name>", or any mention of `/openclone`. Renders the home panel with no args; name/number activates a clone; sub-actions `stop`, `new`, `ingest`, `room`, `panel`.
 argument-hint: [name | N | stop | new | ingest | room | panel <category> "<q>"]
 allowed-tools: Bash, Read, Write, Glob, WebFetch
 ---
@@ -124,7 +124,7 @@ openclone의 단일 진입점. 유저가 `/openclone <args>`로 직접 호출했
 
 실행:
 - `${CLAUDE_SKILL_DIR}/references/interview-workflow.md` 를 로드해 정확히 따르세요.
-- 카테고리는 최소 1개 필수 (vc, dev, founder, pm, designer, writer, marketing, hr 중).
+- 카테고리는 최소 1개 필수 (vc, tech, founder, expert, influencer, politician, celebrity 중).
 - 인터뷰 종료 시:
 
   ```bash
@@ -234,8 +234,8 @@ rm -f ~/.openclone/room
 
 입력: `$2` = 카테고리, 이후 = 질문.
 
-1. `$2` 가 `{vc, dev, founder, pm, designer, writer, marketing, hr}` 중 하나인지 확인. 아니면 다음 안내 후 중단:
-   > 카테고리는 vc, dev, founder, pm, designer, writer, marketing, hr 중 하나. 예: `/openclone panel vc "내 SaaS 피봇 어때요?"`
+1. `$2` 가 `{vc, tech, founder, expert, influencer, politician, celebrity}` 중 하나인지 확인. 아니면 다음 안내 후 중단:
+   > 카테고리는 vc, tech, founder, expert, influencer, politician, celebrity 중 하나. 예: `/openclone panel vc "내 SaaS 피봇 어때요?"`
 2. `$3` 이후를 합친 질문이 비어 있으면 사용법 안내 후 중단.
 3. `${CLAUDE_SKILL_DIR}/references/panel-workflow.md` 와 `${CLAUDE_SKILL_DIR}/references/categories.md` 를 로드. 패널 워크플로를 category = `$2`, question = 나머지 `$ARGUMENTS`로 정확히 실행.
 
@@ -250,7 +250,7 @@ rm -f ~/.openclone/room
 ## 파일 레이아웃 참고
 
 - `${CLAUDE_SKILL_DIR}/references/clone-schema.md` — 클론 파일 포맷 (frontmatter + 섹션, 멀티 카테고리 규칙)
-- `${CLAUDE_SKILL_DIR}/references/categories.md` — 고정 카테고리 8종 + 카테고리별 "항상 점검" 축
+- `${CLAUDE_SKILL_DIR}/references/categories.md` — 고정 카테고리 7종 + 카테고리별 "항상 점검" 축
 - `${CLAUDE_SKILL_DIR}/references/home-workflow.md` — 홈 패널 렌더 및 menu-context 기록
 - `${CLAUDE_SKILL_DIR}/references/interview-workflow.md` — `new` 인터뷰 진행·정리
 - `${CLAUDE_SKILL_DIR}/references/refine-workflow.md` — `ingest`가 원본 소스를 토픽 파일로 정제

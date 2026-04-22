@@ -26,7 +26,7 @@ The user can stop at any time by saying "done", "끝", "저장해" or similar. C
 
 If the user did not supply categories (either in the command or in chat), ask:
 
-> 어떤 카테고리인가요? 다음 중 **하나 이상** 골라주세요 — 둘 이상 맡는 사람이면 복수 선택 OK: **vc**, **dev**, **founder**, **pm**, **designer**, **writer**, **marketing**, **hr**
+> 어떤 카테고리인가요? 다음 중 **하나 이상** 골라주세요 — 둘 이상 맡는 사람이면 복수 선택 OK: **vc**, **tech**, **founder**, **expert**, **influencer**, **politician**, **celebrity**
 
 Do not proceed until the user names at least one value from this list. If they pick more than one, also ask which is the **primary** category (default lens when the clone is activated). Parse inputs like `vc`, `vc, founder`, `founder+vc` etc.
 
@@ -54,12 +54,12 @@ Pull **3–6** questions from the matching block. Prioritize depth over coverage
 - 창업자에게 자주 하는 "불편한 질문" 한 가지?
 - 어떤 유형의 창업자를 높게 보나요?
 
-### dev
+### tech
 
-- 주로 쓰는 언어/스택과, 그 선택의 이유는?
+- 주로 쓰는 언어/스택·도구와, 그 선택의 이유는?
 - 설계할 때 가장 먼저 고려하는 것은? (성능·유지보수·단순성 등)
 - 최근 크게 후회한 기술 결정 하나와 배운 것?
-- 코드 리뷰에서 절대 봐주지 않는 것은?
+- 코드 리뷰·아키텍처 리뷰에서 절대 봐주지 않는 것은?
 - "좋은 엔지니어"와 "훌륭한 엔지니어"의 차이는?
 
 ### founder
@@ -70,29 +70,37 @@ Pull **3–6** questions from the matching block. Prioritize depth over coverage
 - 펀딩 vs 수익 중 어느 쪽을 더 중요하게 봤고 왜?
 - "지금 회사를 다시 시작한다면 뭘 바꿀까?"
 
-### pm
+### expert
 
-- 우선순위 정할 때 쓰는 프레임은?
-- 유저 리서치와 데이터 중 어떤 걸 더 신뢰하나요? 상황은?
-- 엔지니어링과 충돌할 때 어떻게 푸는가?
-- 본인이 내린 로드맵 결정 중 가장 자랑스러운 것과 후회되는 것?
-- 좋은 PRD의 필수 요소는?
+- 어떤 도메인·기능 영역의 전문가인가요? (마케팅·HR·재무·법무·운영 등)
+- 그 분야에서 흔히 통용되는 "정석"과, 본인이 깨고 나간 지점은?
+- 의뢰가 들어왔을 때 가장 먼저 묻는 질문은?
+- 외부에 일반화해 말할 수 있는 가이드 vs 케이스별 자문이 필요한 영역의 경계는?
+- 이 영역에서 흔히 보는 가장 큰 오해 한 가지?
 
-### designer
+### influencer
 
-- 디자인 철학을 한 문장으로?
-- 브리프를 받으면 먼저 뭘 하나요?
-- 좋아하는 제품·브랜드와 그 이유는?
-- 피드백 중 무시하는 것과 진지하게 듣는 것을 가르는 기준은?
-- 제약이 많을 때 어떻게 접근하는가?
+- 주력 플랫폼과 콘텐츠 포맷·길이는?
+- 오디언스는 어떤 사람들이고 어떤 가치를 기대하나요?
+- 후크·첫 3초·리텐션 곡선에서 본인이 검증한 패턴은?
+- 수익화 구조(스폰서·자체상품·커뮤니티 등)와 신뢰 비용의 균형을 어떻게 잡나요?
+- 알고리즘·플랫폼 변화에 어떻게 대응해 왔나요?
 
-### writer
+### politician
 
-- 본인 글의 핵심 보이스를 한 문장으로?
-- 글쓰기 시작할 때 가장 먼저 하는 작업은?
-- 퇴고에서 반드시 잘라내는 패턴 3가지?
-- 영향 받은 작가·편집자와 그 이유는?
-- 본인이 잘 못 쓰는 장르·주제와 왜?
+- 어떤 직책·역할이고 주요 정책 영역은?
+- 의사결정할 때 가장 비중 있게 보는 이해관계자는?
+- 단기적 정치 비용과 장기적 정책 성과 사이에서 결정한 한 사례?
+- 본인 입장과 공식 입장이 갈라졌을 때의 처리 원칙은?
+- 정책을 실제로 굴리는 데 가장 큰 제약(법·예산·관료 구조)은?
+
+### celebrity
+
+- 어떤 분야의 활동(연기·음악·예능·스포츠 등)이고 현재 어느 단계인가요?
+- 본인 페르소나·이미지를 한 줄로 정의한다면?
+- 작품·프로젝트를 고를 때의 기준은?
+- 공개·비공개의 경계, 사생활 보호 원칙은?
+- 팀(매니지먼트·소속사·에이전트)과의 의사결정 분담 방식은?
 
 ## Stage 4 — Speaking style
 

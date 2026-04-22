@@ -6,6 +6,11 @@
 
 ## [Unreleased]
 
+### Changed (breaking)
+
+- **카테고리 enum 재설계 (8종 → 7종).** `dev` → `tech`로 이름 변경, `marketing`·`hr` → `expert`로 병합, `pm`·`designer`·`writer` 제거, `influencer`·`politician`·`celebrity` 추가. 최종 7종: `vc`, `tech`, `founder`, `expert`, `influencer`, `politician`, `celebrity`. 내장 클론 5종(jojoldu, gbjeong, iid, josh, levi)의 `categories`/`primary_category` 마이그레이션. `references/categories.md`의 렌즈 정의도 새 카테고리 4종(expert, influencer, politician, celebrity)에 맞게 새로 작성. 사용자 클론에 구 카테고리(`dev`/`marketing`/`hr`/`pm`/`designer`/`writer`)가 남아 있다면 CI가 실패하므로 새 슬러그로 교체 필요.
+- 위 변경에 맞춰 `SKILL.md` 디스패처, `references/home-workflow.md` 섹션 순서, `references/interview-workflow.md` Stage 1·3 안내, `scripts/statusline.sh` 한국어 라벨, README/CONTRIBUTING/CLAUDE.md/docs/architecture.md/`assets/clone-template.md`/`.github/ISSUE_TEMPLATE/clone_add.md`/`setup` 도움말까지 동시 갱신.
+
 ## [0.2.0] — 2026-04-22
 
 ### Changed

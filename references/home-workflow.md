@@ -27,8 +27,8 @@
 
 ## 3. 그룹핑 / 순서
 
-- 각 클론은 **하나의 섹션**에만 표시 — `primary_category` 섹션. 여러 카테고리에 속한 경우 다른 카테고리는 라인 끝 `[+dev, +pm]` 식으로 표시.
-- 섹션 순서 (해당 카테고리에 ≥1 클론인 섹션만 표시): `founder, vc, pm, dev, designer, writer, marketing, hr`.
+- 각 클론은 **하나의 섹션**에만 표시 — `primary_category` 섹션. 여러 카테고리에 속한 경우 다른 카테고리는 라인 끝 `[+tech, +founder]` 식으로 표시.
+- 섹션 순서 (해당 카테고리에 ≥1 클론인 섹션만 표시): `founder, vc, tech, expert, influencer, politician, celebrity`.
 - 섹션 내부는 `name` 알파벳 순.
 
 ## 4. 번호 부여
@@ -45,6 +45,7 @@
   - `<직책>`은 `tagline`을 `". "` (마침표+공백)로 split해서 **첫 조각**.
   - `<slug>`는 `name` 필드. 백틱으로 감싸 monospace → 시각적으로 한 단계 밀어냄.
   - tagline이 비어 있거나 split 첫 조각만 있을 땐 `— <직책>` 생략 가능.
+- 멀티 카테고리 뱃지의 `+` 표기는 카테고리 슬러그를 그대로 사용 (예: `_[+founder]_`, `_[+tech]_`).
 - **Line 2 (보조):** 들여쓰기 3칸 후 `_<tagline의 나머지>_`
   - tagline split 결과가 2조각 이상일 때만. 들여쓰기 3칸.
   - 나머지 조각은 마침표+공백(`". "`)으로 다시 합친 뒤 끝 마침표가 있으면 그대로 둠.
@@ -67,11 +68,11 @@
 
 2. **Min-Kyu** — 2회 창업, SaaS   `mk-founder`   _[+vc]_
 
-### Dev (3)
+### Tech (3)
 
 3. **Alice** — Distributed systems   `alice`
-4. **Bob** — Frontend, React   `bob`   _[+designer]_
-   _컴포넌트 시스템과 디자인 토큰 중심으로 일합니다_
+4. **Bob** — Frontend, React   `bob`   _[+founder]_
+   _프론트엔드를 만들면서 SaaS도 직접 운영합니다_
 5. **Charlie** — Security   `charlie`
 
 ## 뭐 할래요?
@@ -89,7 +90,7 @@
 - `# openclone`
 - `**Status** — Active: … • Room: … • <N> clones · <C> categories`
 - `## Clones`
-- Section names capitalized: `### Founder (2)`, `### Dev (3)`, …
+- Section names capitalized: `### Founder (2)`, `### Tech (3)`, …
 - `## What next?` + 액션들 (영어 버전)
 
 ## 6. 뱃지 규칙

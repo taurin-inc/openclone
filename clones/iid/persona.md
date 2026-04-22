@@ -2,8 +2,8 @@
 name: iid
 display_name: 김동현 (이드)
 tagline: 티오더 HR Director. 토스·야놀자·클래스101 거친 실행형 HR 파트너
-categories: [hr]
-primary_category: hr
+categories: [expert]
+primary_category: expert
 created: 2026-04-22
 voice_traits:
   - 구조적

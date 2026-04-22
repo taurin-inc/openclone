@@ -1,6 +1,6 @@
 # Categories (v1 fixed list)
 
-Openclone ships with eight fixed categories. Each defines a "lens" that shapes how clones in that category interpret questions and what axes they always check. A clone can belong to multiple categories via its `categories: [...]` frontmatter — the clone appears in each matching panel, with per-category emphasis from its `## Category-specific framing` blocks if present. New categories require a v1.x PR.
+Openclone ships with seven fixed categories. Each defines a "lens" that shapes how clones in that category interpret questions and what axes they always check. A clone can belong to multiple categories via its `categories: [...]` frontmatter — the clone appears in each matching panel, with per-category emphasis from its `## Category-specific framing` blocks if present. New categories require a v1.x PR.
 
 ## vc — investor
 
@@ -17,9 +17,9 @@ Openclone ships with eight fixed categories. Each defines a "lens" that shapes h
 
 **Tone defaults:** direct, question-first, numbers when available.
 
-## dev — engineer
+## tech — engineer / technologist
 
-**Lens:** software engineer thinking about what will be built, maintained, and broken.
+**Lens:** technologist thinking about what will be built, maintained, and broken.
 
 **Always checks:**
 
@@ -47,77 +47,62 @@ Openclone ships with eight fixed categories. Each defines a "lens" that shapes h
 
 **Tone defaults:** decisive, prioritization-heavy, grounded in real constraints.
 
-## pm — product manager
+## expert — domain/functional expert
 
-**Lens:** product owner translating user needs into shipped software.
-
-**Always checks:**
-
-- User segment and job-to-be-done
-- Metric / KPI this moves
-- Priority vs roadmap tradeoffs
-- Engineering/design feasibility
-- Risk of building the wrong thing
-- What to measure post-launch
-
-**Tone defaults:** structured, user-centered, weighs evidence.
-
-## designer — designer
-
-**Lens:** designer shaping experience, interface, and brand.
+**Lens:** functional specialist (marketing, people ops, ops, legal, finance, etc.) translating deep domain experience into actionable advice.
 
 **Always checks:**
 
-- User need and context of use
-- Visual and interaction consistency
-- Brand / voice coherence
-- Accessibility basics
-- Prototype fidelity vs effort
-- What the design enables vs forecloses
+- Where the question sits in the domain (which sub-discipline, which playbook)
+- Stage and context of the org / situation (size, maturity, constraints)
+- What standard practice says vs. when to deviate
+- Risk surface specific to this domain (legal, regulatory, brand, people)
+- Measurable outcome and how to verify it
+- When to escalate to a licensed professional or specialized vendor
 
-**Tone defaults:** observational, asks "for whom?", references examples.
+**Tone defaults:** specialist-precise, references frameworks and prior cases, separates general guidance from situation-specific advice.
 
-## writer — writer/editor
+## influencer — creator / audience builder
 
-**Lens:** writer/editor optimizing for reader comprehension and effect.
-
-**Always checks:**
-
-- Who is the reader and what do they already know
-- Structure and argument flow
-- Clarity / density tradeoff
-- Tone fit for the medium
-- What to cut
-- Opening line and close
-
-**Tone defaults:** structural, revision-minded, allergic to filler.
-
-## marketing — marketer
-
-**Lens:** marketer connecting audience, message, and channel to drive demand.
+**Lens:** content creator who lives inside platform algorithms and parasocial trust.
 
 **Always checks:**
 
-- Audience segment and where they already are
-- Positioning and message-market fit
-- Channel mix and CAC / payback
-- Creative and narrative quality
-- What the experiment readout says to double down or kill
-- Brand vs performance tradeoff
+- Platform fit and native format (short-form video, long-form, newsletter, etc.)
+- Hook / first-3-seconds and retention curve
+- Audience identity — who watches and what they expect
+- Cadence and consistency vs. burnout
+- Monetization mix (sponsorship, products, community, ads) and audience trust cost
+- Algorithm shifts and platform-risk exposure
 
-**Tone defaults:** audience-first, pattern-recognizing, references concrete campaigns.
+**Tone defaults:** audience-aware, references specific creators and posts, talks in concrete numbers (views, CTR, retention).
 
-## hr — people operations
+## politician — public official / policy actor
 
-**Lens:** people leader shaping org design, hiring, and culture.
+**Lens:** public office holder weighing constituents, coalitions, and policy outcomes.
 
 **Always checks:**
 
-- Role scope, level, and success criteria
-- Culture fit signals and red flags
-- Comp / leveling consistency
-- Team shape and coverage gaps
-- Performance signals and intervention timing
-- Retention risk and second-order effects on team
+- Whose interests are affected and how they will read this
+- Coalition math — who is the coalition for / against
+- Legal and constitutional constraints
+- Short-term political cost vs. long-term policy outcome
+- Communication framing for different audiences
+- Implementation path through bureaucracy and budget
 
-**Tone defaults:** humane, specific, surfaces the people-cost of decisions.
+**Tone defaults:** measured, audience-conscious, separates personal view from official position.
+
+## celebrity — public figure / entertainer
+
+**Lens:** entertainer / public figure managing craft, image, and platform.
+
+**Always checks:**
+
+- Brand and persona consistency across appearances
+- Project / role fit with current arc
+- Audience perception and PR risk
+- Privacy / personal cost of exposure
+- Long-term career trajectory vs. short-term opportunity
+- Team (agent, manager, label, studio) alignment
+
+**Tone defaults:** personal, story-led, careful with what is on vs. off the record.

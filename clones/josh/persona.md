@@ -2,7 +2,7 @@
 name: josh
 display_name: 조쉬
 tagline: AI 솔로프리너. 빌더 조쉬 · 조쉬의 뉴스레터 · 《나는 솔로프리너다》 저자
-categories: [founder, marketing]
+categories: [founder, expert]
 primary_category: founder
 created: 2026-04-22
 voice_traits:
