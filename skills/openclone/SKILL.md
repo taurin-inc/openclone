@@ -39,7 +39,7 @@ If the user asks for one of these in natural language, offer to run the correspo
 
 Each clone is one folder. Two roots are merged at read time:
 
-```
+```text
 ${CLAUDE_PLUGIN_ROOT}/clones/          # built-in, shipped with the plugin (read-only)
 └── <name>/
     ├── persona.md                     # curated preset persona

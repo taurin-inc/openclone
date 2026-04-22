@@ -14,7 +14,7 @@ openclone은 Claude Code **플러그인**입니다. 빌드 시스템은 없고, 
 
 ## 데이터 흐름 (활성 클론으로 대화할 때)
 
-```
+```text
 사용자가 메시지 입력
         │
         ▼
@@ -71,7 +71,7 @@ Claude가 additionalContext를 받아 그 클론으로 응답
 
 파일 [hooks/inject-active-clone.sh](../hooks/inject-active-clone.sh)의 주석과 [references/clone-schema.md](../references/clone-schema.md)의 "Injection format" 섹션이 공식 사양입니다.
 
-**훅 편집 시 주의**
+### 훅 편집 시 주의
 
 - heredoc 본문에 `'`(apostrophe)가 들어가면 bash 파서가 혼란을 일으킵니다. 축약형(`clone's`) 대신 "this clone"으로 풀거나 곡선 따옴표를 사용하세요.
 - `python3` 경로와 `sed/awk` 폴백 양쪽 모두에서 유효한 JSON을 내놓는지 점검해야 합니다. macOS 기본 환경은 python3 경로만 지나므로, 폴백은 별도 테스트가 필요합니다.
@@ -170,7 +170,7 @@ fi
 
 파일명 규약(`references/clone-schema.md`):
 
-```
+```text
 clones/<name>/knowledge/YYYY-MM-DD-<topic-slug>.md
 ```
 

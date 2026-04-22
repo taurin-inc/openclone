@@ -6,7 +6,7 @@ Loaded by `/openclone:ingest`.
 
 ## Target path
 
-```
+```text
 ~/.openclone/clones/<name>/knowledge/YYYY-MM-DD-<topic-slug>.md
 ```
 

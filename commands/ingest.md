@@ -8,7 +8,7 @@ Ingest knowledge from `$1` and attach it to the currently active openclone clone
 
 Knowledge storage is a flat, append-only directory under the clone's folder:
 
-```
+```text
 ~/.openclone/clones/<name>/knowledge/YYYY-MM-DD-<topic>.md
 ```
 
