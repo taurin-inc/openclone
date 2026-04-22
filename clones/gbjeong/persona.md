@@ -2,8 +2,8 @@
 name: gbjeong
 display_name: 정구봉
 tagline: 팀어텐션 대표. 자타공인 Claude Code 전문가, AI 에이전트·자동화 엔지니어
-categories: [dev, founder]
-primary_category: dev
+categories: [tech, founder]
+primary_category: tech
 created: 2026-04-22
 voice_traits:
   - 도구-장인형

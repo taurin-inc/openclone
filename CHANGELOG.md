@@ -8,13 +8,25 @@
 
 ### Changed (breaking)
 
+- **카테고리 enum 재설계 (8종 → 7종).** `dev` → `tech`로 이름 변경, `marketing`·`hr` → `expert`로 병합, `pm`·`designer`·`writer` 제거, `influencer`·`politician`·`celebrity` 추가. 최종 7종: `vc`, `tech`, `founder`, `expert`, `influencer`, `politician`, `celebrity`. 내장 클론 5종(jojoldu, gbjeong, iid, josh, levi)의 `categories`/`primary_category` 마이그레이션. `references/categories.md`의 렌즈 정의도 새 카테고리 4종(expert, influencer, politician, celebrity)에 맞게 새로 작성. 사용자 클론에 구 카테고리(`dev`/`marketing`/`hr`/`pm`/`designer`/`writer`)가 남아 있다면 CI가 실패하므로 새 슬러그로 교체 필요.
+- 위 변경에 맞춰 `SKILL.md` 디스패처, `references/home-workflow.md` 섹션 순서, `references/interview-workflow.md` Stage 1·3 안내, `scripts/statusline.sh` 한국어 라벨, README/CONTRIBUTING/CLAUDE.md/docs/architecture.md/`assets/clone-template.md`/`.github/ISSUE_TEMPLATE/clone_add.md`/`setup` 도움말까지 동시 갱신.
+
+## [0.2.0] — 2026-04-22
+
+### Changed
+
+- 클론 응답에 인라인 출처 표기 추가. 훅이 주입하는 지침에 "knowledge 파일·WebSearch 결과에서 사실을 인용할 때 `\[[1](url)\]` 형식 markdown 링크로 출처 표기" 규칙을 넣었습니다. target 우선순위: frontmatter `source_url` → knowledge 파일 절대 경로 → WebSearch 결과 URL. 페르소나 voice·의견·상식은 비인용. 기존의 "source-type 언급 선호" 지침은 제거. room/active-clone 두 모드 모두 적용.
+
+### Changed (breaking)
+
+- **플러그인 → standalone skill 전환.** `.claude-plugin/plugin.json` / `marketplace.json` 제거. 슬래시 커맨드 네임스페이스(`/openclone:openclone`)가 없어지고 `/openclone`이 그대로 동작합니다. 설치는 `/plugin install` 대신 `git clone` + sparse-checkout(`./setup`) 방식으로 전환 — `~/.claude/skills/openclone/`에 직접 체크아웃되어 Claude Code가 SKILL.md를 자동 로드합니다.
 - **단일 `/openclone` 디스패처로 통합.** 기존 13개 커맨드(`/openclone:list`, `/openclone:use`, `/openclone:stop`, `/openclone:new`, `/openclone:ingest`, `/openclone:vc`, `/openclone:dev`, `/openclone:founder`, `/openclone:pm`, `/openclone:designer`, `/openclone:writer`, `/openclone:marketing`, `/openclone:hr`)을 모두 제거하고 `/openclone <sub>` 하나로 흡수했습니다. 매핑: 홈 패널=`/openclone`, 활성화=`/openclone <name>` 또는 `/openclone <N>`, 종료=`/openclone stop`, 신규=`/openclone new`, 지식=`/openclone ingest`, 패널=`/openclone panel <category>`.
 - 홈 패널 UX 도입 — 인자 없이 `/openclone`을 호출하면 카테고리별로 그룹핑된 클론 목록이 번호와 함께 나오고, `/openclone <번호>`로 선택 가능. 마지막 홈 패널의 번호→이름 매핑은 `~/.openclone/menu-context`에 저장됩니다.
 
 ### Added
 
 - **단체 대화방(room) 모드.** `/openclone room <a> <b> <c> ...`로 최대 8명까지 넣은 방을 열면, 이후 일반 메시지는 훅이 알아서 가장 잘 맞는 클론 1명(관점이 뚜렷이 갈릴 때만 최대 2명)이 `## <display_name> — _<tagline>_` 포맷으로 응답합니다. `/openclone room add <name>` / `/openclone room remove <name>` / `/openclone room leave`로 멤버 관리. 상태 파일: `~/.openclone/room` (한 줄에 클론 한 명). Room 모드는 `active-clone`보다 우선하며, `/openclone stop`이 둘 다 정리합니다.
-- **상태줄(statusline).** Claude Code 상태줄에 활성 클론(`openclone · <name>`) 또는 열린 방(`openclone · room: a, b, c`; 4명 이상이면 `a, b, c +N`)이 자동 표시됩니다. `setup`이 `~/.claude/settings.json`에 statusLine을 자동 주입(사용자가 본인 statusLine을 이미 가지고 있으면 건드리지 않음), `uninstall`은 자신이 설치한 경우에만 제거합니다.
+- **상태줄(statusline).** Claude Code 상태줄에 활성 클론(`[display_name - tagline 첫 문장] 클론으로 대화중`) 또는 열린 방(`[a, b, c +N] 클론들과 대화중`; 최대 3명 + 초과분 카운트)이 자동 표시됩니다. 이름 블록은 bold magenta ANSI 색상으로 렌더링돼 다른 상태줄 정보와 시각적으로 구분됩니다. persona.md를 찾을 수 없는 경우 기존 `openclone · <slug>` 포맷으로 graceful fallback합니다. `setup`이 `~/.claude/settings.json`에 statusLine을 자동 주입(사용자가 본인 statusLine을 이미 가지고 있으면 건드리지 않음), `uninstall`은 자신이 설치한 경우에만 제거합니다.
 - README에 "이미 설치됐는데 실패·깨짐 / 재설치" 섹션 — 기존 설치를 지우고 one-liner를 재실행하는 복구 흐름과 `~/.openclone/` 사용자 데이터 보존 사실을 명시.
 
 ### Fixed

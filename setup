@@ -174,7 +174,7 @@ openclone 설치 완료.
   /openclone                    — 홈 패널 (카테고리별 클론 목록, 번호/이름으로 선택)
   /openclone <name | N>         — 해당 클론 활성화 (built-in은 최초 사용 시 지식 lazy-fetch)
   /openclone room <A> <B> ...   — 단체 대화방 열기 (가장 적절한 클론이 자동 응답)
-  /openclone panel vc "..."     — 카테고리 패널 (vc, dev, founder, pm, designer, writer, marketing, hr)
+  /openclone panel vc "..."     — 카테고리 패널 (vc, tech, founder, expert, influencer, politician, celebrity)
   /openclone stop               — 활성 클론과 방 모두 종료
 
 상태줄: 활성 클론 또는 방이 열려 있을 때 Claude Code 상태줄에 `openclone · <이름>` 또는 `openclone · room: a, b, c` 가 표시됩니다.
