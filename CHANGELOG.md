@@ -18,7 +18,7 @@
 ### Added
 
 - **단체 대화방(room) 모드.** `/openclone room <a> <b> <c> ...`로 최대 8명까지 넣은 방을 열면, 이후 일반 메시지는 훅이 알아서 가장 잘 맞는 클론 1명(관점이 뚜렷이 갈릴 때만 최대 2명)이 `## <display_name> — _<tagline>_` 포맷으로 응답합니다. `/openclone room add <name>` / `/openclone room remove <name>` / `/openclone room leave`로 멤버 관리. 상태 파일: `~/.openclone/room` (한 줄에 클론 한 명). Room 모드는 `active-clone`보다 우선하며, `/openclone stop`이 둘 다 정리합니다.
-- **상태줄(statusline).** Claude Code 상태줄에 활성 클론(`openclone · <name>`) 또는 열린 방(`openclone · room: a, b, c`; 4명 이상이면 `a, b, c +N`)이 자동 표시됩니다. `setup`이 `~/.claude/settings.json`에 statusLine을 자동 주입(사용자가 본인 statusLine을 이미 가지고 있으면 건드리지 않음), `uninstall`은 자신이 설치한 경우에만 제거합니다.
+- **상태줄(statusline).** Claude Code 상태줄에 활성 클론(`[display_name - tagline 첫 문장] 클론으로 대화중`) 또는 열린 방(`[a, b, c +N] 클론들과 대화중`; 최대 3명 + 초과분 카운트)이 자동 표시됩니다. 이름 블록은 bold magenta ANSI 색상으로 렌더링돼 다른 상태줄 정보와 시각적으로 구분됩니다. persona.md를 찾을 수 없는 경우 기존 `openclone · <slug>` 포맷으로 graceful fallback합니다. `setup`이 `~/.claude/settings.json`에 statusLine을 자동 주입(사용자가 본인 statusLine을 이미 가지고 있으면 건드리지 않음), `uninstall`은 자신이 설치한 경우에만 제거합니다.
 - README에 "이미 설치됐는데 실패·깨짐 / 재설치" 섹션 — 기존 설치를 지우고 one-liner를 재실행하는 복구 흐름과 `~/.openclone/` 사용자 데이터 보존 사실을 명시.
 
 ### Fixed
