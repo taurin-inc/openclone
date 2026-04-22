@@ -17,9 +17,10 @@ No `npm install`, no build — everything is bash and markdown. CI validators ar
 ./scripts/dev-unlink.sh <rel-path> [...]  # remove dev-link; if the path is tracked, restore shipped version from git
 touch ~/.openclone/no-auto-update         # disable SessionStart git pull (use while dev-linking)
 rm ~/.openclone/no-auto-update            # re-enable auto-update
-node .github/scripts/validate-skill.ts    # CI: SKILL.md frontmatter keys (name, description, allowed-tools)
-node .github/scripts/validate-clones.ts   # CI: clones/*/persona.md schema + fixed 7 categories
-shellcheck hooks/*.sh scripts/*.sh        # CI shellcheck (severity: error)
+node .github/scripts/validate-skill.ts    # CI: SKILL.md frontmatter + references/*.md existence
+node .github/scripts/validate-clones.ts   # CI: clones/*/persona.md schema + FIXED_CATEGORIES cross-file mentions
+bash .github/scripts/smoke-hook.sh        # CI: hook JSON output across 5 states (no state, active, missing, room, force-push)
+shellcheck hooks/*.sh scripts/*.sh        # CI shellcheck (severity: error; action also picks up setup/uninstall via shebang)
 npx markdownlint-cli2 "**/*.md"           # CI markdownlint (config: .markdownlint-cli2.jsonc)
 ```
 
@@ -58,9 +59,10 @@ references/
 assets/clone-template.md       # copy-pasteable starting persona.md for hand-authoring
 docs/architecture.md           # human-oriented Korean architecture walkthrough
 .github/
-  scripts/validate-skill.ts    # CI: SKILL.md frontmatter validator
-  scripts/validate-clones.ts   # CI: persona.md schema + FIXED_CATEGORIES enforcement
-  workflows/validate.yml       # runs the two validators + shellcheck + markdownlint-cli2 on push/PR
+  scripts/validate-skill.ts    # CI: SKILL.md frontmatter + body references/*.md existence check
+  scripts/validate-clones.ts   # CI: persona.md schema + FIXED_CATEGORIES cross-file mentions (6 files)
+  scripts/smoke-hook.sh        # CI: isolated-$HOME fixture — runs the hook across 5 states, asserts valid JSON + expected tags
+  workflows/validate.yml       # runs validators + smoke-hook + shellcheck + markdownlint-cli2 on push/PR
   ISSUE_TEMPLATE/              # bug, feature, clone_add, clone_update, opt_in_request, config.yml
 ```
 
@@ -177,7 +179,7 @@ Standalone skill commands are **not namespaced** — `/openclone` works directly
 - **`references/clone-schema.md` is canonical** for persona.md frontmatter (`name`, `display_name`, `tagline`, `categories`, `created`, `voice_traits` required; `primary_category` optional), required body sections (`## Persona` → `## Speaking style` → `## Guidelines` → `## Background`), optional `## Category-specific framing`, and the knowledge filename convention. Keep it in sync with `clones/douglas/persona.md` as the worked example. `validate-clones.ts` enforces the frontmatter keys, category enum, and body sections.
 - **Helper scripts live in `scripts/`** and are invoked from `SKILL.md` via `${CLAUDE_SKILL_DIR}/scripts/<name>.sh`. Scripts exit 0 with output on stdout; the dispatcher is responsible for capturing. Scripts executed from **hooks** must also exit 0 on failure paths — never let a hook cascade into the session.
 - **`setup` and `uninstall` are executable shell scripts** at the repo root (no `.sh` extension). They edit `~/.claude/settings.json` via an inline `python3` block, tagging every inserted entry with `_openclone_managed: true` so uninstall can strip exactly those and leave user-authored hooks/statuslines intact. Preserve all unrelated keys when editing these scripts.
-- **CI runs on every push and PR** (`.github/workflows/validate.yml`): the two TypeScript validators, `shellcheck` at `severity: error` on hooks and listed scripts, and `markdownlint-cli2` with knowledge directories ignored (`.markdownlint-cli2.jsonc`).
+- **CI runs on every push and PR** (`.github/workflows/validate.yml`): the two TypeScript validators (`validate-skill.ts` also cross-checks that every `${CLAUDE_SKILL_DIR}/references/<slug>.md` mentioned in `SKILL.md` exists; `validate-clones.ts` also verifies that every `FIXED_CATEGORIES` token is mentioned in each of the six downstream files), the `smoke-hook.sh` fixture (runs `hooks/inject-active-clone.sh` under an isolated temp `$HOME` across 5 states and asserts valid JSON + expected tags), `shellcheck` at `severity: error` (action detects shebang+executable files, so root `setup`/`uninstall` are covered too), and `markdownlint-cli2` with knowledge directories ignored (`.markdownlint-cli2.jsonc`).
 
 ## Gotchas
 
