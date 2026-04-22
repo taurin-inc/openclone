@@ -91,7 +91,6 @@ docs/                   사람용 개발자 문서
 - **카테고리 오타·대문자** — `VC`·`engineer`·`Founder` 모두 실패. 8개 enum은 **소문자 정확 일치**.
 - **본문 섹션 헤딩 누락·오타** — `## Persona`, `## Speaking style`, `## Guidelines`, `## Background` **모두** 필요. 하나라도 빠지면 실패. 레벨(`##` vs `###`)도 정확해야 합니다.
 - **frontmatter 구분선 누락** — 파일 첫 줄이 `---`여야 하고, frontmatter 끝도 `---`로 닫아야 합니다.
-- **`persona.md`에 import 푸터 / "Knowledge index" 섹션 추가** — `clones/douglas/persona.md`에는 이전 제품 DB에서 이관된 유산으로 이 섹션이 남아 있지만, **신규 클론은 복제하지 마세요**. 클론의 페르소나 본문만 포함합니다.
 
 #### 로컬 검증
 
