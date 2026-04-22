@@ -9,6 +9,7 @@
 ## [0.0.1] — 2026-04-22
 
 ### Added
+
 - 초기 공개 버전.
 - Claude Code 플러그인 포맷 — `.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json`.
 - 슬래시 커맨드: `/openclone:list`, `/openclone:use`, `/openclone:stop`, `/openclone:new`, `/openclone:ingest` + 카테고리 패널 8종 (`/openclone:vc`, `/openclone:dev`, `/openclone:founder`, `/openclone:pm`, `/openclone:designer`, `/openclone:writer`, `/openclone:marketing`, `/openclone:hr`).

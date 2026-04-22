@@ -25,7 +25,7 @@
 
 Claude Code 세션에 아래 문단을 그대로 붙여넣으세요:
 
-```
+```text
 Install openclone: run
   git clone --filter=blob:none --sparse --depth=1 https://github.com/taurin-inc/openclone.git ~/.claude/plugins/marketplaces/openclone && cd ~/.claude/plugins/marketplaces/openclone && git sparse-checkout set --no-cone '/*' '!/clones/*/knowledge/' && ./setup
 then run /reload-plugins to activate. Add an "openclone" section to ~/.claude/CLAUDE.md briefly explaining what openclone is and listing the commands: /openclone:list, /openclone:use <name>, /openclone:stop, /openclone:new, /openclone:ingest, /openclone:vc, /openclone:dev, /openclone:founder, /openclone:pm, /openclone:designer, /openclone:writer, /openclone:marketing, /openclone:hr — with a one-line note that knowledge for a built-in clone is lazy-fetched on first /openclone:use. Finally, confirm the plugin loaded by running /openclone:list and show me the output.
@@ -77,7 +77,7 @@ cd ~/.claude/plugins/marketplaces/openclone && ./uninstall
 
 ## 사용법
 
-```
+```text
 /openclone:new hayun                    # 클론 생성 — 카테고리 1개 이상 선택 후 인터뷰 진행
 /openclone:use hayun                    # 클론 활성화 — 이후 대화는 이 클론과 나눔
 /openclone:stop                         # 비활성화
@@ -90,7 +90,7 @@ cd ~/.claude/plugins/marketplaces/openclone && ./uninstall
 
 내장 클론과 사용자 클론은 **같은 폴더 구조**를 씁니다 — `clones/<name>/` 안에 `persona.md`와 `knowledge/`가 함께 있습니다. 루트만 다릅니다. 읽기 시점에 두 루트가 병합됩니다.
 
-```
+```text
 <plugin-root>/                          # ~/.claude/plugins/marketplaces/openclone
 └── clones/<name>/
     ├── persona.md                      # 내장 페르소나 (항상 설치됨)
@@ -106,6 +106,7 @@ cd ~/.claude/plugins/marketplaces/openclone && ./uninstall
 ```
 
 **우선순위.**
+
 - *페르소나*: 이름이 겹치면 **사용자 클론이 이김** — `/openclone:list`·`/openclone:use`·패널 커맨드 모두에서 내장 클론을 덮어씁니다.
 - *지식*: **누적형** — 훅은 활성 클론의 두 knowledge 디렉터리를 모두 읽고, 같은 토픽이 여러 파일에 있을 경우 최신 날짜에 더 높은 가중치를 두도록 Claude에 지시합니다.
 
@@ -116,7 +117,7 @@ cd ~/.claude/plugins/marketplaces/openclone && ./uninstall
 ## 카테고리 (v1 고정 목록)
 
 | 코드 | 렌즈 |
-|---|---|
+| --- | --- |
 | `vc` | 투자자 — 시장, 팀, 트랙션, 엑싯, 리스크 |
 | `dev` | 엔지니어 — 설계, 성능, 유지보수성, 보안 |
 | `founder` | 창업가 — 비즈니스 모델, 팀, 실행, 펀딩 |
