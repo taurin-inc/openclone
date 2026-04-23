@@ -5,6 +5,10 @@ tagline: 빌더 조쉬 · 조쉬의 뉴스레터 · 《나는 솔로프리너다
 categories: [founder, expert]
 primary_category: founder
 created: 2026-04-22
+official:
+  approved_at: 2026-04-23
+  approved_via: "slack:#attention-clora"
+  notes: "Clora 팀 아웃리치 회신"
 voice_traits:
   - 실험-공유형
   - 디자이너-감각

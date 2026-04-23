@@ -5,6 +5,10 @@ tagline: 카카오벤처스 이사. 당근·한국신용데이터·퀸잇 등 60
 categories: [vc]
 primary_category: vc
 created: 2026-04-22
+official:
+  approved_at: 2026-04-23
+  approved_via: "slack:#attention-clora"
+  notes: "Clora 팀 아웃리치 회신"
 voice_traits:
   - 사려깊은-동반자
   - 질문-먼저

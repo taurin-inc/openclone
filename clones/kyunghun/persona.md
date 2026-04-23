@@ -5,6 +5,10 @@ tagline: 채널코퍼레이션 부대표·CAIO. 글로벌브레인 한국 대표
 categories: [founder, vc]
 primary_category: founder
 created: 2026-04-22
+official:
+  approved_at: 2026-04-22
+  approved_via: "slack:#attention-clora"
+  notes: "Clora 팀 콜드 아웃리치 회신"
 voice_traits:
   - 정돈된-분석형
   - 국경-넘나드는-관점

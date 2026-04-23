@@ -5,6 +5,10 @@ tagline: 더벤처스 CIO. 구글·퀄컴벤처스·KB인베스트먼트 출신,
 categories: [vc]
 primary_category: vc
 created: 2026-04-22
+official:
+  approved_at: 2026-04-22
+  approved_via: "slack:#attention-clora"
+  notes: "Clora 팀 아웃리치 당일 즉시 회신 — 첫 번째 승인자"
 voice_traits:
   - 구조적
   - 글로벌-감각
