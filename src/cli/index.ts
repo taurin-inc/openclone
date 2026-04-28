@@ -2,6 +2,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CloneLoader } from "../lib/clone-loader.js";
+import { createCloneTools } from "../lib/clone-tools.js";
+import { runConversation, shouldStartInteractive } from "../lib/conversation.js";
 import { renderActiveClonePrompt } from "../lib/prompt-renderer.js";
 import { opencloneHome } from "../lib/paths.js";
 import { resolveProvider } from "../lib/provider-resolver.js";
@@ -68,7 +70,8 @@ async function roomMembers(): Promise<string[]> {
 }
 
 function usage(): string {
-  return `openclone CLI\n\nUsage:\n  openclone list\n  openclone status\n  openclone chat [slug] [--prompt <text>] [--dry-run]\n\nProvider flags for chat:\n  --base-url <url>       OpenAI-compatible base URL (default: https://api.openai.com/v1)\n  --api-key <key>        API key (prefer env OPENCLONE_API_KEY/OPENAI_API_KEY)\n  --model <id>           Model id (default: gpt-4.1-mini)\n  --use-codex-auth       Opt in to read-only Codex OAuth token reuse from ~/.codex/auth.json\n`;
+  return `openclone CLI\n\nUsage:\n  openclone list\n  openclone status\n  openclone chat [slug] [--prompt <text>] [--dry-run]
+  openclone chat [slug]                 # interactive conversation when no prompt/stdin is provided\n\nProvider flags for chat:\n  --base-url <url>       OpenAI-compatible base URL (default: https://api.openai.com/v1)\n  --api-key <key>        API key (prefer env OPENCLONE_API_KEY/OPENAI_API_KEY)\n  --model <id>           Model id (default: gpt-5.5)\n  --use-codex-auth       Opt in to read-only Codex OAuth token reuse from ~/.codex/auth.json\n`;
 }
 
 async function listCommand(): Promise<void> {
@@ -95,7 +98,13 @@ async function chatCommand(args: ParsedArgs): Promise<void> {
 
   const positionalPrompt = args.positionals.length > 1 ? args.positionals.slice(1).join(" ") : undefined;
   const prompt = flagString(args.flags, "prompt") ?? positionalPrompt ?? await readStdinIfAvailable();
-  if (!prompt) throw new Error("No prompt provided. Use --prompt, positional text, or pipe stdin.");
+  const interactive = shouldStartInteractive({
+    explicitPrompt: flagString(args.flags, "prompt"),
+    positionalPrompt,
+    stdinText: prompt,
+    stdinIsTTY: process.stdin.isTTY,
+    stdoutIsTTY: process.stdout.isTTY,
+  });
 
   const loader = new CloneLoader();
   const clone = await loader.loadClone(slug);
@@ -107,8 +116,13 @@ async function chatCommand(args: ParsedArgs): Promise<void> {
       selectedKnowledge: rendered.knowledge.map((file) => ({ path: file.path, origin: file.origin, topic: file.topic, dateKey: file.dateKey })),
       system: rendered.system,
       user: prompt,
+      interactive,
     }, null, 2));
     return;
+  }
+
+  if (!interactive && !prompt) {
+    throw new Error("No prompt provided. Use --prompt, positional text, pipe stdin, or run from a TTY for interactive mode.");
   }
 
   const provider = await resolveProvider({
@@ -120,10 +134,23 @@ async function chatCommand(args: ParsedArgs): Promise<void> {
     useCodexAuth: flagBoolean(args.flags, "useCodexAuth"),
   });
 
+  const tools = createCloneTools(clone);
+
+  if (interactive) {
+    await runConversation({
+      cloneLabel: `${clone.displayName} (${clone.slug})`,
+      model: provider.model,
+      system: rendered.system,
+      tools,
+    });
+    return;
+  }
+
   await streamChat({
     model: provider.model,
     system: rendered.system,
     messages: [{ role: "user", content: prompt }],
+    tools,
     onText: (chunk) => process.stdout.write(chunk),
   });
   process.stdout.write("\n");

@@ -108,7 +108,7 @@ export async function resolveProvider(options: ProviderOptions = {}): Promise<Re
 
   const providerName = config.providerName ?? "openclone-openai-compatible";
   const baseURL = config.baseURL ?? "https://api.openai.com/v1";
-  const modelId = config.model ?? "gpt-4.1-mini";
+  const modelId = config.model ?? "gpt-5.5";
   const apiKey = config.apiKey;
 
   if (!apiKey) {

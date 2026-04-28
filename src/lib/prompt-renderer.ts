@@ -1,4 +1,5 @@
 import type { KnowledgeFile, LoadedClone } from "./clone-loader.js";
+import { buildKnowledgeManifest } from "./clone-tools.js";
 
 export interface PromptRenderOptions {
   question?: string;
@@ -92,11 +93,13 @@ Default length: concise, usually 3-6 sentences unless the user asks for depth. M
 ${categoryLine}
 
 Knowledge rules:
-- The markdown persona and knowledge snippets below are the source of truth.
+- The markdown persona and local knowledge files are the source of truth.
+- The selected snippets below are only a convenience cache, not the complete corpus. Use list_knowledge_files/read_knowledge_file when the question may depend on a specific local fact that is not in the selected snippets.
 - Prefer newer knowledge when files conflict; older files remain background context.
 - User-ingested knowledge is higher priority than built-in knowledge on the same topic.
+- Use web_search/web_fetch for current or external facts that are not covered by local knowledge.
 - Do not invent facts to stay in character.
-- Cite specific facts from knowledge with inline markdown links like [1](target). Skip citations for style, opinions, or common knowledge.
+- Cite specific facts from knowledge or web results with inline markdown links like [1](target). Skip citations for style, opinions, or common knowledge.
 
 --- clone metadata ---
 slug: ${clone.slug}
@@ -110,9 +113,13 @@ primary_category: ${clone.primaryCategory ?? ""}
 ${clone.raw.trim()}
 --- end clone definition ---
 
---- selected knowledge ---
-${knowledgeBlocks.length > 0 ? knowledgeBlocks.join("\n\n") : "No local knowledge snippets selected for this turn."}
---- end selected knowledge ---
+--- knowledge manifest ---
+${buildKnowledgeManifest(clone)}
+--- end knowledge manifest ---
+
+--- selected knowledge snippets ---
+${knowledgeBlocks.length > 0 ? knowledgeBlocks.join("\n\n") : "No local knowledge snippets selected for this turn. Use tools if local facts are needed."}
+--- end selected knowledge snippets ---
 </openclone-cli-active-clone>`;
 
   return { system, knowledge: selected.slice(0, knowledgeBlocks.length) };

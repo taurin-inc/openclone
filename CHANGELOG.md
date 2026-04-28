@@ -6,6 +6,12 @@
 
 ## [Unreleased]
 
+- Improve standalone CLI persona parity with Claude Code by adding AI SDK tools for local knowledge file reads plus best-effort `web_search`/`web_fetch`.
+- Default the OpenAI-compatible CLI provider model to `gpt-5.5`.
+- Add Ollama-run-like interactive conversation mode for `openclone chat <slug>` when no prompt/stdin is provided.
+- Add release-tag-driven npm publish workflow for GitHub Releases.
+- Rename npm package to scoped `@openclone/openclone` for the newly created npm org.
+
 - Add experimental Node.js CLI for Vercel AI SDK/OpenAI-compatible chat over existing markdown clones while preserving Claude Code support.
 
 ### Changed (breaking)

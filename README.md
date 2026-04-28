@@ -75,21 +75,34 @@ git clone --filter=blob:none --sparse --depth=1 \
 
 기존 Claude Code 스킬 지원은 그대로 유지하면서, 같은 마크다운 클론을 일반 API 호출로 대화하는 Node.js CLI도 제공합니다. CLI는 `clones/<slug>/persona.md`와 `knowledge/*.md`를 그대로 읽으므로 마크다운 파일이 계속 single source of truth입니다.
 
+로컬 체크아웃에서 실행:
+
 ```bash
 npm install
 npm run build
 node dist/cli/index.js list
 node dist/cli/index.js status
 node dist/cli/index.js chat douglas --prompt "내 아이디어를 평가해줘"
+node dist/cli/index.js chat douglas   # prompt/stdin이 없으면 Ollama run처럼 대화 모드
 ```
 
-기본 provider는 Vercel AI SDK의 OpenAI-compatible provider입니다. API 키 방식은 아래 환경변수를 사용합니다.
+npm 패키지로 설치한 경우:
+
+```bash
+npm install -g @openclone/openclone
+openclone list
+openclone chat douglas
+```
+
+대화 모드에서는 프로세스가 살아 있는 동안 이전 user/assistant 턴을 in-memory history로 유지합니다. `/help`로 명령을 보고, `/clear`로 현재 대화 맥락을 비우고, `/bye`·`/exit`·`/quit`로 종료합니다.
+
+기본 provider는 Vercel AI SDK의 OpenAI-compatible provider이며 기본 모델은 `gpt-5.5`입니다. API 키 방식은 아래 환경변수를 사용합니다.
 
 ```bash
 export OPENCLONE_PROVIDER="openai-compatible"
 export OPENCLONE_BASE_URL="https://api.openai.com/v1"
 export OPENCLONE_API_KEY="..."      # 또는 OPENAI_API_KEY
-export OPENCLONE_MODEL="gpt-4.1-mini"
+export OPENCLONE_MODEL="gpt-5.5"
 ```
 
 Codex에 로그인된 환경에서는 `--use-codex-auth`로 `openai-oauth-provider` 기반 Codex OAuth transport를 사용할 수 있습니다. 이 경로는 일반 `api.openai.com/v1`이 아니라 Codex backend(`https://chatgpt.com/backend-api/codex`)로 요청을 보내며, 로컬 `~/.codex/auth.json`/`CODEX_HOME/auth.json`을 사용합니다. 로컬 개인 머신 실험용이며, hosted service나 token 공유 용도로 쓰지 마세요.
@@ -97,6 +110,8 @@ Codex에 로그인된 환경에서는 `--use-codex-auth`로 `openai-oauth-provid
 ```bash
 node dist/cli/index.js chat douglas --use-codex-auth --model gpt-5.5 --prompt "짧게 조언해줘"
 ```
+
+CLI 대화도 AI SDK tool calling을 사용해 Claude Code 훅과 유사하게 동작합니다. 프롬프트에는 일부 최신/관련 knowledge snippet만 미리 넣지만, 전체 knowledge manifest를 함께 제공하고 모델이 `list_knowledge_files`/`read_knowledge_file` 도구로 필요한 로컬 마크다운 지식을 추가로 읽을 수 있습니다. 최신·외부 사실이 필요하면 `web_search`/`web_fetch` 도구를 사용할 수 있습니다.
 
 Ollama는 전용 AI SDK provider(`ai-sdk-ollama`)로 지원합니다.
 
@@ -133,6 +148,18 @@ cd ~/.codex/skills/openclone && git sparse-checkout add clones/<slug>/knowledge/
 ```
 
 **업데이트**: 자동 업데이트 훅이 없으므로 `git pull --ff-only`로 수동 갱신합니다. **제거**: 디렉터리 삭제(`rm -rf ~/.codex/skills/openclone`)로 충분합니다 — Claude Code처럼 settings.json을 건드리지 않기 때문입니다.
+
+### npm 배포
+
+GitHub Release를 `published` 상태로 만들면 `.github/workflows/publish-npm.yml`이 npm 배포를 수행합니다. Release tag가 npm 패키지 버전의 source of truth입니다.
+
+- tag 예: `v0.3.1` 또는 `0.3.1`
+- prerelease tag 예: `v0.4.0-beta.1`
+- 일반 release는 npm `latest` dist-tag로 배포
+- GitHub prerelease이거나 semver prerelease tag이면 npm `next` dist-tag로 배포
+- 저장소 secret `NPM_TOKEN`이 필요합니다.
+
+워크플로는 publish 전에 tag에서 version을 추출해 `package.json`/`package-lock.json`에 `npm version --no-git-tag-version`으로 반영한 뒤 validate/build/test/lint/audit를 통과해야 `npm publish --provenance`를 실행합니다.
 
 ### 플랫폼 지원
 

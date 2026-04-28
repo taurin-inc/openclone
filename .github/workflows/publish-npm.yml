@@ -1,0 +1,63 @@
+name: publish npm
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Resolve version from release tag
+        id: version
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          set -euo pipefail
+          version="${TAG_NAME#v}"
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "Release tag must be a semver tag like v1.2.3 or 1.2.3; got: ${TAG_NAME}" >&2
+            exit 1
+          fi
+          dist_tag="latest"
+          if [ "$IS_PRERELEASE" = "true" ] || printf '%s' "$version" | grep -q -- '-'; then
+            dist_tag="next"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "dist_tag=$dist_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Stamp package version from release tag
+        run: npm version "${{ steps.version.outputs.version }}" --no-git-tag-version --allow-same-version
+
+      - name: Validate package
+        run: |
+          node .github/scripts/validate-skill.ts
+          node .github/scripts/validate-clones.ts
+          npm run validate
+          npm run build
+          npx markdownlint-cli2 "**/*.md"
+          shellcheck -S error hooks/*.sh scripts/*.sh setup uninstall
+          npm audit --audit-level=moderate
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public --tag "${{ steps.version.outputs.dist_tag }}"

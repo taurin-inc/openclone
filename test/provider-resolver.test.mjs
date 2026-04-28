@@ -21,11 +21,12 @@ test('provider resolver does not read Codex auth unless OAuth is explicitly requ
   );
 });
 
-test('provider resolver accepts explicit env API key without Codex auth', async () => {
+test('provider resolver accepts explicit env API key without Codex auth and defaults to gpt-5.5', async () => {
   const resolved = await resolveProvider({ env: { OPENCLONE_API_KEY: 'test-key' } });
   assert.equal(resolved.authSource, 'api-key');
   assert.equal(resolved.provider, 'openai-compatible');
   assert.equal(resolved.baseURL, 'https://api.openai.com/v1');
+  assert.equal(resolved.modelId, 'gpt-5.5');
 });
 
 test('provider resolver uses Codex OAuth provider only when explicitly requested', async () => {
