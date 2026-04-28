@@ -94,7 +94,9 @@ openclone list
 openclone chat douglas
 ```
 
-대화 모드에서는 프로세스가 살아 있는 동안 이전 user/assistant 턴을 in-memory history로 유지합니다. `/help`로 명령을 보고, `/clear`로 현재 대화 맥락을 비우고, `/bye`·`/exit`·`/quit`로 종료합니다.
+대화 모드에서는 프로세스가 살아 있는 동안 이전 user/assistant 턴을 in-memory history로 유지합니다. `/help`로 명령을 보고, `/compact`로 오래된 대화를 요약하고, `/clear`로 현재 대화 맥락과 요약을 비우고, `/bye`·`/exit`·`/quit`로 종료합니다.
+
+긴 대화는 기본적으로 약 24,000자(`OPENCLONE_COMPACT_MAX_CHARS`)를 넘으면 오래된 메시지를 요약하고 최근 6턴(`OPENCLONE_COMPACT_KEEP_TURNS`)은 원문으로 유지합니다. 요약 길이는 `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS`(기본 6,000자)로 조정할 수 있습니다.
 
 기본 provider는 Vercel AI SDK의 OpenAI-compatible provider이며 기본 모델은 `gpt-5.5`입니다. API 키 방식은 아래 환경변수를 사용합니다.
 
