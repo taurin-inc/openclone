@@ -151,6 +151,17 @@ cd ~/.codex/skills/openclone && git sparse-checkout add clones/<slug>/knowledge/
 
 **업데이트**: 자동 업데이트 훅이 없으므로 `git pull --ff-only`로 수동 갱신합니다. **제거**: 디렉터리 삭제(`rm -rf ~/.codex/skills/openclone`)로 충분합니다 — Claude Code처럼 settings.json을 건드리지 않기 때문입니다.
 
+### Agent skill for CLI help
+
+이 저장소는 Claude Code용 루트 `SKILL.md`와 별도로, 일반 에이전트가 openclone CLI 사용법을 안내할 수 있는 분리형 스킬도 제공합니다.
+
+```text
+skills/openclone-cli/SKILL.md
+skills/openclone-cli/references/*.md
+```
+
+이 스킬은 npm 설치, Ollama/local model, Codex OAuth, OpenAI-compatible API, 대화 모드, knowledge 조회, 문제 해결을 reference 파일로 나눠 필요한 부분만 읽도록 설계되어 있습니다.
+
 ### npm 배포
 
 GitHub Release를 `published` 상태로 만들면 `.github/workflows/publish-npm.yml`이 npm 배포를 수행합니다. Release tag가 npm 패키지 버전의 source of truth입니다.

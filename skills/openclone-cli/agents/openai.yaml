@@ -1,0 +1,6 @@
+interface:
+  display_name: "openclone CLI Helper"
+  short_description: "Run openclone CLI across API and local models"
+  default_prompt: "Use $openclone-cli to help me run openclone CLI with the right provider and model."
+policy:
+  allow_implicit_invocation: true

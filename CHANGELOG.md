@@ -12,6 +12,7 @@
 - Add release-tag-driven npm publish workflow for GitHub Releases.
 - Rename npm package to scoped `@openclone/openclone` for the newly created npm org.
 - Add auto-compaction and manual `/compact` for long interactive CLI conversations.
+- Add a separate `openclone-cli` agent skill with provider-specific reference files for CLI usage help.
 
 - Add experimental Node.js CLI for Vercel AI SDK/OpenAI-compatible chat over existing markdown clones while preserving Claude Code support.
 
