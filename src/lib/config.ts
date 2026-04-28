@@ -10,6 +10,7 @@ export interface CliConfig {
   providerName?: string;
   useCodexAuth?: boolean;
   codexEnsureFresh?: boolean;
+  codexStore?: boolean;
   codexAuthFilePath?: string;
   headers?: Record<string, string>;
 }

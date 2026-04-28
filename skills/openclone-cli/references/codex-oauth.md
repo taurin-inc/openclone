@@ -8,6 +8,7 @@ Use this when the user wants to reuse a local Codex login instead of managing a 
 - The CLI only uses Codex OAuth when explicitly requested.
 - This path is intended for personal local-machine use, not hosted services or token sharing.
 - It uses the Codex backend transport, not the normal OpenAI API base URL.
+- By default, openclone enables Codex response item persistence so multi-step conversations and tool calls can refer to previous response items reliably.
 
 ## Commands
 
@@ -24,8 +25,15 @@ export OPENCLONE_MODEL=gpt-5.5
 openclone chat douglas
 ```
 
+Privacy-sensitive local runs may disable response item persistence, but this can reintroduce `Item ... not found` errors during long conversations or tool use:
+
+```bash
+export OPENCLONE_CODEX_STORE=0
+```
+
 ## Troubleshooting
 
+- If `Item ... not found` appears, make sure `OPENCLONE_CODEX_STORE` is not set to `0`; the Codex backend needs stored response items for AI SDK response references.
 - If auth fails, ask the user to confirm Codex works locally first.
 - If a custom auth location is needed, use `OPENCLONE_CODEX_AUTH_FILE`.
 - Do not ask users to paste or share Codex tokens.

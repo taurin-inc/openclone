@@ -17,6 +17,7 @@ export interface ResolvedProvider {
   provider: ProviderKind;
   baseURL?: string;
   authSource: "api-key" | "codex-oauth" | "none";
+  codexStore?: boolean;
 }
 
 function envFlag(value: string | undefined): boolean {
@@ -41,6 +42,7 @@ function envConfig(env: NodeJS.ProcessEnv): CliConfig {
     providerName: env.OPENCLONE_PROVIDER_NAME,
     useCodexAuth: envFlag(env.OPENCLONE_USE_CODEX_AUTH),
     codexEnsureFresh: env.OPENCLONE_CODEX_ENSURE_FRESH === undefined ? undefined : envFlag(env.OPENCLONE_CODEX_ENSURE_FRESH),
+    codexStore: env.OPENCLONE_CODEX_STORE === undefined ? undefined : envFlag(env.OPENCLONE_CODEX_STORE),
     codexAuthFilePath: env.OPENCLONE_CODEX_AUTH_FILE,
   };
 }
@@ -60,6 +62,7 @@ export async function resolveProvider(options: ProviderOptions = {}): Promise<Re
       useCodexAuth: options.useCodexAuth,
       headers: options.headers,
       codexEnsureFresh: options.codexEnsureFresh,
+      codexStore: options.codexStore,
       codexAuthFilePath: options.codexAuthFilePath,
     },
   );
@@ -70,11 +73,13 @@ export async function resolveProvider(options: ProviderOptions = {}): Promise<Re
     const providerName = config.providerName ?? "openclone-codex-oauth";
     const baseURL = config.baseURL ?? "https://chatgpt.com/backend-api/codex";
     const modelId = config.model ?? "gpt-5.5";
+    const codexStore = config.codexStore ?? true;
     const provider = createOpenAIOAuth({
       name: providerName,
       baseURL,
       authFilePath: config.codexAuthFilePath,
       ensureFresh: config.codexEnsureFresh ?? true,
+      store: codexStore,
       headers: config.headers,
     });
     return {
@@ -84,6 +89,7 @@ export async function resolveProvider(options: ProviderOptions = {}): Promise<Re
       provider: providerKind,
       baseURL,
       authSource: "codex-oauth",
+      codexStore,
     };
   }
 

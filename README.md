@@ -107,7 +107,7 @@ export OPENCLONE_API_KEY="..."      # 또는 OPENAI_API_KEY
 export OPENCLONE_MODEL="gpt-5.5"
 ```
 
-Codex에 로그인된 환경에서는 `--use-codex-auth`로 `openai-oauth-provider` 기반 Codex OAuth transport를 사용할 수 있습니다. 이 경로는 일반 `api.openai.com/v1`이 아니라 Codex backend(`https://chatgpt.com/backend-api/codex`)로 요청을 보내며, 로컬 `~/.codex/auth.json`/`CODEX_HOME/auth.json`을 사용합니다. 로컬 개인 머신 실험용이며, hosted service나 token 공유 용도로 쓰지 마세요.
+Codex에 로그인된 환경에서는 `--use-codex-auth`로 `openai-oauth-provider` 기반 Codex OAuth transport를 사용할 수 있습니다. 이 경로는 일반 `api.openai.com/v1`이 아니라 Codex backend(`https://chatgpt.com/backend-api/codex`)로 요청을 보내며, 로컬 `~/.codex/auth.json`/`CODEX_HOME/auth.json`을 사용합니다. 로컬 개인 머신 실험용이며, hosted service나 token 공유 용도로 쓰지 마세요. Codex OAuth는 Responses API의 대화/도구 item reference가 끊기지 않도록 기본적으로 response item persistence를 켭니다. 개인정보 민감 테스트에서 끄려면 `OPENCLONE_CODEX_STORE=0`을 설정할 수 있지만, 긴 대화나 tool calling 중 `Item ... not found` 오류가 다시 날 수 있습니다.
 
 ```bash
 node dist/cli/index.js chat douglas --use-codex-auth --model gpt-5.5 --prompt "짧게 조언해줘"

@@ -37,6 +37,7 @@ test('provider resolver uses Codex OAuth provider only when explicitly requested
   assert.equal(resolved.authSource, 'codex-oauth');
   assert.equal(resolved.provider, 'codex-oauth');
   assert.equal(resolved.baseURL, 'https://chatgpt.com/backend-api/codex');
+  assert.equal(resolved.codexStore, true);
 });
 
 test('provider resolver supports Ollama without API key', async () => {
@@ -44,4 +45,13 @@ test('provider resolver supports Ollama without API key', async () => {
   assert.equal(resolved.provider, 'ollama');
   assert.equal(resolved.authSource, 'none');
   assert.equal(resolved.baseURL, 'http://127.0.0.1:11434');
+});
+
+test('provider resolver allows disabling Codex response item persistence for privacy-sensitive local runs', async () => {
+  const home = await mkdtemp(join(tmpdir(), 'openclone-provider-'));
+  await mkdir(join(home, '.codex'), { recursive: true });
+  await writeFile(join(home, '.codex', 'auth.json'), JSON.stringify({ auth_mode: 'chatgpt', tokens: { access_token: fakeJwt(4102444800), account_id: 'acct' } }));
+  const resolved = await resolveProvider({ env: { HOME: home, OPENCLONE_USE_CODEX_AUTH: '1', OPENCLONE_CODEX_STORE: '0' } });
+  assert.equal(resolved.authSource, 'codex-oauth');
+  assert.equal(resolved.codexStore, false);
 });
