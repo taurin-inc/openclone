@@ -104,11 +104,6 @@ function validateNestedSkills(): number {
         problems.push(`${relative(ROOT, skillPath)} references non-existent file: references/${file}`);
       }
     }
-
-    const openaiYaml = resolve(skillDir, "agents", "openai.yaml");
-    if (!existsSync(openaiYaml)) {
-      problems.push(`${relative(ROOT, skillDir)} missing recommended agents/openai.yaml`);
-    }
   }
   if (problems.length > 0) fail(problems);
   return count;

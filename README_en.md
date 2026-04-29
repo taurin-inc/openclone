@@ -45,6 +45,8 @@ These are the preset clones shipped in this repository. A ✅ in the **Official*
 | ✅ | [조쉬](clones/josh/persona.md) | `founder`, `expert` | Builder Josh · Josh's Newsletter · Author of "I Am a Solopreneur" |
 | ✅ | [이경훈](clones/kyunghun/persona.md) | `founder`, `vc` | Vice President & CAIO at Channel Corporation. Former Korea head of Global Brain; AI and Japan-market expert |
 |  | [김용훈 (Levi)](clones/levi/persona.md) | `expert` | CEO of Kim Yonghoon Growth Lab. Growth marketing for 160+ startups; CMO with M&A and IPO experience |
+|  | [이승건 (SG Lee)](clones/sglee/persona.md) | `founder`, `expert` | Toss team lead and Viva Republica founder. Built Korea's national super-app on the 9th attempt after 8 failures over 5 years |
+|  | [김동신 (John Kim)](clones/johnkim/persona.md) | `founder`, `expert` | Sendbird founder. ParfaikaLab exit → Smile Family pivot → first Korean Silicon Valley B2B unicorn. Currently building Delight.ai |
 
 ## Install
 
