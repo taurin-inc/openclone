@@ -49,6 +49,8 @@ reviewer. Please verify phrasing and terminology before removing this marker.
 | ✅ | [조쉬](clones/josh/persona.md) | `founder`, `expert` | Builder Josh · Josh 的新闻邮件 · 《我是独立创业者(나는 솔로프리너다)》作者 |
 | ✅ | [이경훈](clones/kyunghun/persona.md) | `founder`, `vc` | Channel Corporation 副社长兼 CAIO。曾任 Global Brain 韩国代表,AI 与日本市场专家 |
 |  | [김용훈 (Levi)](clones/levi/persona.md) | `expert` | Kim Yonghoon Growth Lab 代表。为 160 多家创业公司做过增长营销,有 M&A 与 IPO 经验的 CMO |
+|  | [이승건 (SG Lee)](clones/sglee/persona.md) | `founder`, `expert` | Toss 团队负责人、Viva Republica 创始人。经历 5 年 8 次失败,在第 9 次创业打造出韩国国民级超级应用 |
+|  | [김동신 (John Kim)](clones/johnkim/persona.md) | `founder`, `expert` | Sendbird 创始人。ParfaikaLab 退出 → Smile Family 转向 → 首位韩国人打造的硅谷 B2B 独角兽。目前正在创办 Delight.ai |
 
 ## 安装
 
