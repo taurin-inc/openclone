@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CloneLoader } from "../lib/clone-loader.js";
 import { createCloneTools } from "../lib/clone-tools.js";
-import { runConversation, shouldStartInteractive } from "../lib/conversation.js";
+import { runConversation, shouldStartInteractive, type ConversationPersistEvent } from "../lib/conversation.js";
 import {
   HistoryStore,
   newSessionId,
@@ -171,14 +171,14 @@ async function chatCommand(args: ParsedArgs): Promise<void> {
     const startedAt = resumedRecord?.startedAt || new Date().toISOString();
     const cloneLabel = `${clone.displayName} (${clone.slug})`;
 
-    await runConversation({
+    const conversationOptions = {
       cloneLabel,
       model: provider.model,
       system: rendered.system,
       tools,
       initialMessages: resumedRecord?.messages,
       initialSummary: resumedRecord?.conversationSummary,
-      onPersist: persistDisabled ? undefined : async ({ messages, conversationSummary }) => {
+      onPersist: persistDisabled ? undefined : async ({ messages, conversationSummary }: ConversationPersistEvent) => {
         await historyStore.save({
           schemaVersion: 1,
           sessionId,
@@ -192,10 +192,21 @@ async function chatCommand(args: ParsedArgs): Promise<void> {
           modelId: provider.modelId,
         });
       },
-    });
+    } as const;
+
+    const useInkTui = process.stdout.isTTY === true && process.stdin.isTTY === true;
+    if (useInkTui) {
+      const { runInkConversation } = await import("../ui/runInkConversation.js");
+      await runInkConversation(conversationOptions);
+    } else {
+      await runConversation(conversationOptions);
+    }
 
     if (!persistDisabled) {
       console.log(`[session saved: ${historyStore.sessionPath(slug, sessionId)}]`);
+    }
+    if (useInkTui) {
+      process.exit(0);
     }
     return;
   }
