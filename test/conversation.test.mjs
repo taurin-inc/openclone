@@ -185,3 +185,207 @@ test('/clear removes both raw history and compacted summary', async () => {
   assert.deepEqual(chatCalls.at(-1).messages, [{ role: 'user', content: 'fresh' }]);
   assert.match(output.text, /Conversation history and summary cleared/);
 });
+
+test('runConversation seeds initial history and summary from options', async () => {
+  const chatCalls = [];
+  const output = new CaptureOutput();
+  await runConversation({
+    cloneLabel: 'Alice (alice)',
+    model: {},
+    system: 'system',
+    tools: {},
+    output,
+    readline: fakeReadline(['follow up', '/bye']),
+    initialMessages: [
+      { role: 'user', content: 'previous question' },
+      { role: 'assistant', content: 'previous answer' },
+    ],
+    initialSummary: 'user already discussed onboarding',
+    stream: async (options) => {
+      chatCalls.push({
+        system: options.system,
+        messages: options.messages.map((message) => ({ role: message.role, content: message.content })),
+      });
+      options.onText?.('ok');
+      return 'ok';
+    },
+  });
+
+  assert.equal(chatCalls.length, 1);
+  assert.match(chatCalls[0].system, /user already discussed onboarding/);
+  assert.deepEqual(chatCalls[0].messages, [
+    { role: 'user', content: 'previous question' },
+    { role: 'assistant', content: 'previous answer' },
+    { role: 'user', content: 'follow up' },
+  ]);
+  assert.match(output.text, /\[resumed: 2 message\(s\), with prior summary\]/);
+  assert.match(output.text, /--- prior summary ---/);
+  assert.match(output.text, /user already discussed onboarding/);
+  assert.match(output.text, /--- end summary ---/);
+  assert.match(output.text, />>> previous question/);
+  assert.match(output.text, /previous answer/);
+  assert.match(output.text, /--- continuing conversation ---/);
+});
+
+test('resumed history is replayed in chronological order before the new prompt', async () => {
+  const output = new CaptureOutput();
+  await runConversation({
+    cloneLabel: 'Alice (alice)',
+    model: {},
+    system: 'system',
+    tools: {},
+    output,
+    readline: fakeReadline(['/bye']),
+    initialMessages: [
+      { role: 'user', content: 'msg-1' },
+      { role: 'assistant', content: 'reply-1' },
+      { role: 'user', content: 'msg-2' },
+      { role: 'assistant', content: 'reply-2' },
+    ],
+    stream: async () => 'unused',
+  });
+
+  const idx1 = output.text.indexOf('>>> msg-1');
+  const idx2 = output.text.indexOf('reply-1');
+  const idx3 = output.text.indexOf('>>> msg-2');
+  const idx4 = output.text.indexOf('reply-2');
+  const idxContinue = output.text.indexOf('--- continuing conversation ---');
+  assert.ok(idx1 >= 0 && idx2 > idx1 && idx3 > idx2 && idx4 > idx3, 'messages must replay in chronological order');
+  assert.ok(idxContinue > idx4, 'continuation marker must come after replayed history');
+});
+
+test('replays summary alone when there are no messages to seed', async () => {
+  const output = new CaptureOutput();
+  await runConversation({
+    cloneLabel: 'Alice (alice)',
+    model: {},
+    system: 'system',
+    tools: {},
+    output,
+    readline: fakeReadline(['/bye']),
+    initialSummary: 'compacted summary text only',
+    stream: async () => 'unused',
+  });
+  assert.match(output.text, /--- prior summary ---/);
+  assert.match(output.text, /compacted summary text only/);
+  assert.doesNotMatch(output.text, /--- continuing conversation ---/);
+});
+
+test('does not print resume artifacts when starting fresh', async () => {
+  const output = new CaptureOutput();
+  await runConversation({
+    cloneLabel: 'Alice (alice)',
+    model: {},
+    system: 'system',
+    tools: {},
+    output,
+    readline: fakeReadline(['/bye']),
+    stream: async () => 'unused',
+  });
+  assert.doesNotMatch(output.text, /--- prior summary ---/);
+  assert.doesNotMatch(output.text, /--- continuing conversation ---/);
+});
+
+test('runConversation calls onPersist after each turn and on exit', async () => {
+  const events = [];
+  const output = new CaptureOutput();
+  await runConversation({
+    cloneLabel: 'Alice (alice)',
+    model: {},
+    system: 'system',
+    tools: {},
+    output,
+    readline: fakeReadline(['one', 'two', '/bye']),
+    onPersist: async (event) => {
+      events.push({
+        reason: event.reason,
+        messageCount: event.messages.length,
+        summaryLength: event.conversationSummary.length,
+      });
+    },
+    stream: async (options) => {
+      options.onText?.('ok');
+      return 'ok';
+    },
+  });
+
+  const turnEvents = events.filter((event) => event.reason === 'turn');
+  const exitEvents = events.filter((event) => event.reason === 'exit');
+  assert.equal(turnEvents.length, 2);
+  assert.equal(turnEvents[0].messageCount, 2);
+  assert.equal(turnEvents[1].messageCount, 4);
+  assert.equal(exitEvents.length, 1);
+  assert.equal(exitEvents[0].messageCount, 4);
+});
+
+test('runConversation persists after /clear and /compact when work was done', async () => {
+  const persistReasons = [];
+  const persistedSnapshots = [];
+  const output = new CaptureOutput();
+  await runConversation({
+    cloneLabel: 'Alice (alice)',
+    model: {},
+    system: 'system',
+    tools: {},
+    output,
+    readline: fakeReadline(['one', 'two', '/compact', '/clear', '/bye']),
+    compactKeepTurns: 1,
+    onPersist: async (event) => {
+      persistReasons.push(event.reason);
+      persistedSnapshots.push({
+        messageCount: event.messages.length,
+        summary: event.conversationSummary,
+      });
+    },
+    stream: async (options) => {
+      if (options.system.includes('compact conversation history')) return 'summary text';
+      options.onText?.('ok');
+      return 'ok';
+    },
+  });
+
+  assert.deepEqual(persistReasons, ['turn', 'turn', 'turn', 'turn', 'exit']);
+  const compactSnapshot = persistedSnapshots[2];
+  assert.equal(compactSnapshot.summary, 'summary text');
+  const clearSnapshot = persistedSnapshots[3];
+  assert.equal(clearSnapshot.messageCount, 0);
+  assert.equal(clearSnapshot.summary, '');
+});
+
+test('runConversation reports persist failure but keeps the loop alive', async () => {
+  const output = new CaptureOutput();
+  let calls = 0;
+  await runConversation({
+    cloneLabel: 'Alice (alice)',
+    model: {},
+    system: 'system',
+    tools: {},
+    output,
+    readline: fakeReadline(['hello', '/bye']),
+    onPersist: async () => {
+      calls += 1;
+      throw new Error('disk is full');
+    },
+    stream: async (options) => {
+      options.onText?.('ok');
+      return 'ok';
+    },
+  });
+
+  assert.ok(calls >= 1);
+  assert.match(output.text, /failed to persist conversation: disk is full/);
+});
+
+test('runConversation does not announce resume when starting fresh', async () => {
+  const output = new CaptureOutput();
+  await runConversation({
+    cloneLabel: 'Alice (alice)',
+    model: {},
+    system: 'system',
+    tools: {},
+    output,
+    readline: fakeReadline(['/bye']),
+    stream: async () => 'ok',
+  });
+  assert.doesNotMatch(output.text, /\[resumed:/);
+});

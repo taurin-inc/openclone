@@ -73,7 +73,7 @@ export async function resolveProvider(options: ProviderOptions = {}): Promise<Re
     const providerName = config.providerName ?? "openclone-codex-oauth";
     const baseURL = config.baseURL ?? "https://chatgpt.com/backend-api/codex";
     const modelId = config.model ?? "gpt-5.5";
-    const codexStore = config.codexStore ?? true;
+    const codexStore = config.codexStore ?? false;
     const provider = createOpenAIOAuth({
       name: providerName,
       baseURL,

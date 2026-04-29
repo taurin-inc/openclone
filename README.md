@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-8A2BE2)](https://docs.claude.com/en/docs/claude-code)
-[![Status](https://img.shields.io/badge/Status-v0.2-brightgreen)](CHANGELOG.md)
+[![Status](https://img.shields.io/badge/Status-v0.3.0-brightgreen)](CHANGELOG.md)
 ![Made in Korea](https://img.shields.io/badge/Made%20in-Korea-blue)
 
 > **Claude Code 안에서 AI 페르소나 클론과 대화하는 스킬.**
@@ -98,6 +98,30 @@ openclone chat douglas
 
 긴 대화는 기본적으로 약 24,000자(`OPENCLONE_COMPACT_MAX_CHARS`)를 넘으면 오래된 메시지를 요약하고 최근 6턴(`OPENCLONE_COMPACT_KEEP_TURNS`)은 원문으로 유지합니다. 요약 길이는 `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS`(기본 6,000자)로 조정할 수 있습니다.
 
+#### 대화 세션 영속화
+
+인터랙티브 대화는 매 턴 그리고 `/bye` 시점에 `~/.openclone/conversations/<slug>/<sessionId>.json`로 평문 JSON으로 저장됩니다. `sessionId`는 파일명에 안전한 ISO 타임스탬프(예: `2026-04-28T14-32-19-487Z`)이며, 같은 세션이 진행되는 동안 동일 sessionId 파일을 덮어씁니다.
+
+저장된 세션을 불러와 이어 대화하려면 `--resume`을 사용합니다.
+
+```bash
+node dist/cli/index.js chat douglas --resume                       # 가장 최근 세션 이어가기
+node dist/cli/index.js chat douglas --resume=2026-04-28T14-32-19-487Z   # 특정 세션 이어가기
+node dist/cli/index.js history douglas                             # 단일 클론의 저장된 세션 목록 보기
+node dist/cli/index.js history --all                               # 모든 클론의 세션을 클론별로 그룹핑해서 보기
+node dist/cli/index.js history                                     # 인자 없이 호출하면 history 도움말 표시
+node dist/cli/index.js history douglas --quiet                     # 컬럼 헤더와 resume 힌트 제거 (파이프용)
+node dist/cli/index.js chat douglas --no-persist                   # 이번 세션은 디스크에 저장하지 않기
+```
+
+`openclone history`를 인자 없이 부르면 **도움말만 출력**됩니다. 암묵적인 active-clone fallback은 의도치 않은 결과를 부를 수 있어서 제거했습니다. 단일 클론을 보려면 `openclone history <slug>`로 명시적으로, 전체를 보려면 `--all`로 명시적으로 호출하세요.
+
+`history --all`은 `~/.openclone/conversations/` 아래 디렉터리를 모두 훑어 클론별로 묶어 보여줍니다. 클론이 더 이상 존재하지 않는데 세션만 남아있는 경우(예: 사용자가 `~/.openclone/clones/<slug>/`를 지웠거나 built-in에서 제거된 경우) 해당 그룹에 `[orphan: clone not found]` 표시가 붙습니다.
+
+각 세션 라인 아래에는 그대로 복사해 쓸 수 있는 `→ resume: openclone chat <slug> --resume=<SESSION_ID>` 힌트가 표시되어, sessionId가 무엇인지·어떻게 이어갈지 별도 문서를 보지 않아도 됩니다. 파이프로 다른 도구에 넘겨야 할 때는 `--quiet`로 헤더와 힌트를 모두 끌 수 있습니다.
+
+`--resume`으로 시작하면 배너에 `[resumed: N message(s)]`가 표시되고 이전 대화의 메시지·요약이 in-memory로 복원되어 모델 호출에 포함됩니다. 그리고 **이전 대화 전체가 터미널에 그대로 다시 출력**되어, 위로 스크롤하면 그 동안 무슨 이야기를 했는지 바로 확인할 수 있습니다(요약이 있으면 `--- prior summary ---` 박스로, raw 메시지는 시간순으로 `>>>` 프리픽스의 사용자 발화와 어시스턴트 응답이 교대로 표시됩니다). 마지막엔 `--- continuing conversation ---` 구분선이 찍히고 새 `>>>` 프롬프트가 뜹니다. 종료 시점에 `[session saved: <path>]`가 출력됩니다. 세션 파일은 평문 JSON이므로 직접 열어 검토하거나 보관·삭제할 수 있습니다.
+
 기본 provider는 Vercel AI SDK의 OpenAI-compatible provider이며 기본 모델은 `gpt-5.5`입니다. API 키 방식은 아래 환경변수를 사용합니다.
 
 ```bash
@@ -107,7 +131,7 @@ export OPENCLONE_API_KEY="..."      # 또는 OPENAI_API_KEY
 export OPENCLONE_MODEL="gpt-5.5"
 ```
 
-Codex에 로그인된 환경에서는 `--use-codex-auth`로 `openai-oauth-provider` 기반 Codex OAuth transport를 사용할 수 있습니다. 이 경로는 일반 `api.openai.com/v1`이 아니라 Codex backend(`https://chatgpt.com/backend-api/codex`)로 요청을 보내며, 로컬 `~/.codex/auth.json`/`CODEX_HOME/auth.json`을 사용합니다. 로컬 개인 머신 실험용이며, hosted service나 token 공유 용도로 쓰지 마세요. Codex OAuth는 Responses API의 대화/도구 item reference가 끊기지 않도록 기본적으로 response item persistence를 켭니다. 개인정보 민감 테스트에서 끄려면 `OPENCLONE_CODEX_STORE=0`을 설정할 수 있지만, 긴 대화나 tool calling 중 `Item ... not found` 오류가 다시 날 수 있습니다.
+Codex에 로그인된 환경에서는 `--use-codex-auth`로 `openai-oauth-provider` 기반 Codex OAuth transport를 사용할 수 있습니다. 이 경로는 일반 `api.openai.com/v1`이 아니라 Codex backend(`https://chatgpt.com/backend-api/codex`)로 요청을 보내며, 로컬 `~/.codex/auth.json`/`CODEX_HOME/auth.json`을 사용합니다. 로컬 개인 머신 실험용이며, hosted service나 token 공유 용도로 쓰지 마세요. Codex OAuth는 기본적으로 response item persistence를 끕니다(`store=false`). ChatGPT 백엔드가 ChatGPT 일반 사용자 토큰에 대해 `store=true` 요청을 거부하기 때문이며, 우리 CLI는 매 턴마다 전체 messages 배열을 직접 전송하므로 `previous_response_id` 없이도 멀티턴 대화가 정상 동작합니다. 만약 백엔드가 향후 다시 `store=true`를 허용하고 그 모드를 쓰고 싶다면 `OPENCLONE_CODEX_STORE=1`로 명시적으로 켤 수 있지만, 거부되면 `Store must be set to false` 400 오류가 납니다.
 
 ```bash
 node dist/cli/index.js chat douglas --use-codex-auth --model gpt-5.5 --prompt "짧게 조언해줘"

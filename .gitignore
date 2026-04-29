@@ -8,3 +8,6 @@
 node_modules/
 dist/
 coverage/
+
+# npm pack output
+*.tgz

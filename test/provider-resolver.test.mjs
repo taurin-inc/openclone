@@ -29,7 +29,7 @@ test('provider resolver accepts explicit env API key without Codex auth and defa
   assert.equal(resolved.modelId, 'gpt-5.5');
 });
 
-test('provider resolver uses Codex OAuth provider only when explicitly requested', async () => {
+test('provider resolver uses Codex OAuth provider only when explicitly requested and defaults codexStore to false', async () => {
   const home = await mkdtemp(join(tmpdir(), 'openclone-provider-'));
   await mkdir(join(home, '.codex'), { recursive: true });
   await writeFile(join(home, '.codex', 'auth.json'), JSON.stringify({ auth_mode: 'chatgpt', tokens: { access_token: fakeJwt(4102444800), account_id: 'acct' } }));
@@ -37,6 +37,14 @@ test('provider resolver uses Codex OAuth provider only when explicitly requested
   assert.equal(resolved.authSource, 'codex-oauth');
   assert.equal(resolved.provider, 'codex-oauth');
   assert.equal(resolved.baseURL, 'https://chatgpt.com/backend-api/codex');
+  assert.equal(resolved.codexStore, false);
+});
+
+test('provider resolver allows enabling Codex response item persistence via env', async () => {
+  const home = await mkdtemp(join(tmpdir(), 'openclone-provider-'));
+  await mkdir(join(home, '.codex'), { recursive: true });
+  await writeFile(join(home, '.codex', 'auth.json'), JSON.stringify({ auth_mode: 'chatgpt', tokens: { access_token: fakeJwt(4102444800), account_id: 'acct' } }));
+  const resolved = await resolveProvider({ env: { HOME: home, OPENCLONE_USE_CODEX_AUTH: '1', OPENCLONE_CODEX_STORE: '1' } });
   assert.equal(resolved.codexStore, true);
 });
 

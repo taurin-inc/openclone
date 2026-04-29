@@ -9,17 +9,11 @@
   "files": [
     "dist",
     "clones",
-    "references",
-    "assets",
-    "skills",
-    "hooks",
-    "scripts",
-    "SKILL.md",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "npm run clean && tsc -p tsconfig.json",
+    "build": "npm run clean && tsc -p tsconfig.json && chmod +x dist/cli/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test test/*.test.mjs",
     "validate": "npm run typecheck && npm test && bash .github/scripts/smoke-hook.sh",

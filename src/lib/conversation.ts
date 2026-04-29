@@ -20,6 +20,12 @@ export type ConversationCommand =
   | { kind: "empty" }
   | { kind: "message"; text: string };
 
+export interface ConversationPersistEvent {
+  reason: "turn" | "exit";
+  messages: ModelMessage[];
+  conversationSummary: string;
+}
+
 export interface ConversationOptions {
   cloneLabel: string;
   model: LanguageModel;
@@ -32,6 +38,9 @@ export interface ConversationOptions {
   compactMaxChars?: number;
   compactKeepTurns?: number;
   compactSummaryMaxChars?: number;
+  initialMessages?: ModelMessage[];
+  initialSummary?: string;
+  onPersist?: (event: ConversationPersistEvent) => Promise<void> | void;
 }
 
 export interface CompactionSplit {
@@ -148,8 +157,19 @@ export async function runConversation(options: ConversationOptions): Promise<voi
   const compactMaxChars = options.compactMaxChars ?? DEFAULT_COMPACT_MAX_CHARS;
   const compactKeepTurns = options.compactKeepTurns ?? DEFAULT_COMPACT_KEEP_TURNS;
   const compactSummaryMaxChars = options.compactSummaryMaxChars ?? DEFAULT_COMPACT_SUMMARY_MAX_CHARS;
-  let messages: ModelMessage[] = [];
-  let conversationSummary = "";
+  let messages: ModelMessage[] = options.initialMessages ? [...options.initialMessages] : [];
+  let conversationSummary = options.initialSummary ?? "";
+  const onPersist = options.onPersist;
+
+  async function persist(reason: "turn" | "exit"): Promise<void> {
+    if (!onPersist) return;
+    try {
+      await onPersist({ reason, messages, conversationSummary });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      output.write(`[openclone: failed to persist conversation: ${message}]\n`);
+    }
+  }
 
   async function compactNow(reason: "auto" | "manual"): Promise<boolean> {
     const split = splitMessagesForCompaction(messages, compactKeepTurns);
@@ -167,7 +187,27 @@ export async function runConversation(options: ConversationOptions): Promise<voi
   }
 
   output.write(`openclone conversation: ${options.cloneLabel}\n`);
+  if (messages.length > 0 || conversationSummary) {
+    output.write(`[resumed: ${messages.length} message(s)${conversationSummary ? ", with prior summary" : ""}]\n`);
+  }
   output.write(`${conversationHelp()}\n\n`);
+
+  if (conversationSummary) {
+    output.write("--- prior summary ---\n");
+    output.write(`${conversationSummary}\n`);
+    output.write("--- end summary ---\n\n");
+  }
+  if (messages.length > 0) {
+    for (const message of messages) {
+      const text = messageContentText(message.content);
+      if (message.role === "user") {
+        output.write(`>>> ${text}\n`);
+      } else {
+        output.write(`${text}\n`);
+      }
+    }
+    output.write("--- continuing conversation ---\n\n");
+  }
 
   try {
     while (true) {
@@ -190,11 +230,13 @@ export async function runConversation(options: ConversationOptions): Promise<voi
         messages = [];
         conversationSummary = "";
         output.write("Conversation history and summary cleared.\n");
+        await persist("turn");
         continue;
       }
       if (command.kind === "compact") {
         const compacted = await compactNow("manual");
         if (!compacted) output.write("Not enough older conversation history to compact.\n");
+        else await persist("turn");
         continue;
       }
 
@@ -212,7 +254,9 @@ export async function runConversation(options: ConversationOptions): Promise<voi
       });
       output.write("\n");
       messages.push({ role: "assistant", content: response });
+      await persist("turn");
     }
+    await persist("exit");
   } finally {
     if (closeReadline) rl.close();
   }

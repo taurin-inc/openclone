@@ -85,6 +85,7 @@ Every read path merges two roots. The **built-in** (shipped, read-only) and **us
 | Active pointer | — | `~/.openclone/active-clone` (clone name on one line) |
 | Room roster | — | `~/.openclone/room` (one name per line; non-empty = room mode) |
 | Home-panel menu | — | `~/.openclone/menu-context` (JSON; last home panel's numbering for `/openclone <N>`) |
+| CLI conversation sessions | — | `~/.openclone/conversations/<slug>/<sessionId>.json` (plaintext JSON, written by the standalone Node CLI's interactive chat — see "CLI conversation persistence" below) |
 | Auto-update state | — | `last-update-check` (mtime throttle), `last-update.log`, `just-upgraded-from`, `force-push-detected`, `no-auto-update` |
 
 Rules:
@@ -102,6 +103,25 @@ The root `SKILL.md` is the sole entry point for both `/openclone` and natural-la
 ### Standalone Node CLI
 
 The CLI is additive. It must not replace the Claude Code hook path. It reads the same `clones/<slug>/persona.md` and `knowledge/*.md` files and sends a rendered system prompt through Vercel AI SDK. Provider defaults use `@ai-sdk/openai-compatible`; `OPENCLONE_API_KEY`/`OPENAI_API_KEY` are the stable credential path. `--use-codex-auth` switches to the `openai-oauth-provider` Codex backend transport (`https://chatgpt.com/backend-api/codex`) using local Codex/ChatGPT auth, and `--provider ollama` uses `ai-sdk-ollama` for local Ollama. Do not route Codex OAuth through plain `api.openai.com/v1`.
+
+### CLI conversation persistence
+
+The interactive `openclone chat` loop persists every turn — and the final exit — to `~/.openclone/conversations/<slug>/<sessionId>.json` as plaintext JSON. `sessionId` is a filename-safe ISO timestamp (`2026-04-28T14-32-19-487Z`). The same file is overwritten in place during a single live session, so there is exactly one JSON per session. Schema is owned by `src/lib/history-store.ts` (`ConversationSessionRecord`, currently `schemaVersion: 1`).
+
+Persistence is wired purely at the CLI layer:
+
+- `runConversation` (in `src/lib/conversation.ts`) accepts `initialMessages`, `initialSummary`, and an `onPersist({ reason, messages, conversationSummary })` callback. The library itself does no I/O.
+- `chatCommand` (in `src/cli/index.ts`) constructs a `HistoryStore`, generates a fresh `sessionId` for new chats or reuses the loaded one for `--resume`, and wires `onPersist` to call `historyStore.save(...)`.
+- `--resume` (no value → latest by lexicographic `sessionId` sort) or `--resume=<id>` (specific session) loads the record and seeds `initialMessages` / `initialSummary`. A `[resumed: N message(s)]` banner is printed, the prior summary (if any) is rendered between `--- prior summary ---` / `--- end summary ---` markers, and every restored message is replayed to stdout in chronological order (user messages prefixed with `>>>`, assistant responses unprefixed) followed by `--- continuing conversation ---` before the live prompt loop. This lets users scroll up in their terminal to see the full prior dialogue.
+- `--no-persist` passes `onPersist: undefined`, so the run is fully ephemeral.
+- `openclone history <slug>` lists saved sessions for a single clone (newest first by `sessionId`). `openclone history --all` (or `openclone history` when no `active-clone` is set) walks every directory under `~/.openclone/conversations/`, groups sessions by slug, and tags any group whose slug is not in `CloneLoader.listClones()` with `[orphan: clone not found]`. Cross-clone listing reuses `HistoryStore.listClonesWithSessions()` and `HistoryStore.listAllSessions()`; orphan classification reuses `CloneLoader.listClones()` so adding/removing a clone automatically reflects in the orphan tag.
+
+Invariants:
+
+- `~/.openclone/conversations/` is owned by the user (never under `${CLAUDE_SKILL_DIR}`).
+- The CLI must never write history when stdin is non-interactive (single-shot `--prompt` / piped stdin paths skip `runConversation` entirely).
+- `onPersist` failures are reported to stdout and never crash the conversation loop. This is non-negotiable: a transient disk error must not lose the user's in-memory state mid-session.
+- When changing the persisted schema, bump `schemaVersion`, keep `normalizeRecord` backward-compatible for older files, and add a round-trip test.
 
 ### Persona injection via UserPromptSubmit hook
 
