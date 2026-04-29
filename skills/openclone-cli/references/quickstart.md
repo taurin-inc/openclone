@@ -39,6 +39,23 @@ openclone chat <clone-slug>
 
 When no prompt or stdin is provided in a terminal, `openclone chat <clone-slug>` opens an interactive conversation.
 
+## Sessions and resuming
+
+Interactive sessions are saved automatically to `~/.openclone/conversations/<slug>/<sessionId>.json`. You can list and resume them.
+
+```bash
+openclone history <clone-slug>                          # list saved sessions for one clone
+openclone history --all                                 # all clones, grouped, with orphan tags
+openclone chat <clone-slug> --resume                    # resume the newest session
+openclone chat <clone-slug> --resume=<SESSION_ID>       # resume a specific session by id
+openclone chat <clone-slug> --no-persist                # one-shot ephemeral session
+openclone history <clone-slug> --quiet                  # column-only output for piping
+```
+
+`SESSION_ID` is the first column of `openclone history`. On resume, the CLI replays the prior conversation to the terminal so scrolling up shows the full prior dialogue before the new prompt.
+
+`openclone history` with no arguments prints help instead of silently picking a clone — pass a slug or `--all` explicitly.
+
 ## Clone data
 
 The CLI reads the same markdown data model as the Claude Code skill:

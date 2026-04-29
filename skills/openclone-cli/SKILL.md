@@ -1,11 +1,11 @@
 ---
 name: openclone-cli
-description: Help users install, configure, troubleshoot, and run the openclone Node.js CLI for persona chat across OpenAI-compatible APIs, Codex OAuth, and Ollama/local models. Use when users ask how to run openclone outside Claude Code, choose a provider/model, use local Ollama, understand conversation mode, knowledge lookup, or npm package usage.
+description: Help users install, configure, troubleshoot, and run the openclone Node.js CLI for AI persona chat. Use when users ask how to install openclone via npm, run openclone outside Claude Code, choose a provider (OpenAI-compatible API, Codex OAuth, or local Ollama), pick a model, list or resume saved conversation sessions (openclone history, --resume, --resume=<id>), use --no-persist, understand interactive chat mode, knowledge lookup, conversation persistence under ~/.openclone/conversations, or fix CLI errors.
 ---
 
 # openclone CLI helper
 
-Use this skill when the user wants help running openclone from a terminal rather than using the Claude Code `/openclone` skill.
+Use this skill when the user wants help running the standalone `openclone` CLI from a terminal rather than the Claude Code `/openclone` slash command.
 
 ## Core workflow
 
@@ -13,9 +13,9 @@ Use this skill when the user wants help running openclone from a terminal rather
    - Local model/Ollama → read `references/ollama.md`.
    - Codex OAuth → read `references/codex-oauth.md`.
    - API key or custom OpenAI-compatible endpoint → read `references/openai-compatible.md`.
-   - General install/first run → read `references/quickstart.md`.
+   - General install, first run, listing/resuming sessions → read `references/quickstart.md`.
 2. Explain that the CLI uses the same markdown persona and `knowledge/` files as source of truth.
-3. For interactive chat behavior, memory, knowledge lookup, and compaction, read `references/conversation-and-knowledge.md`.
+3. For interactive chat behavior, memory, knowledge lookup, compaction, on-disk session persistence, and resuming prior conversations (`--resume`, `--resume=<id>`, `openclone history`, `--no-persist`), read `references/conversation-and-knowledge.md`.
 4. If the user reports errors, read `references/troubleshooting.md`.
 
 Keep answers short and concrete. Prefer copy-pasteable commands. Do not claim the CLI starts external services unless the reference says so.
@@ -23,6 +23,7 @@ Keep answers short and concrete. Prefer copy-pasteable commands. Do not claim th
 ## Safety and expectation checks
 
 - Ollama/local models run through an already-running Ollama server; openclone does not start it.
-- Codex OAuth is opt-in and local-machine oriented; do not suggest hosted token sharing.
+- Codex OAuth is opt-in and local-machine oriented; do not suggest hosted token sharing. Codex response item persistence defaults to off because the ChatGPT backend currently rejects `store=true` for ChatGPT-tier OAuth tokens.
 - Model quality varies. Local models may follow persona/tool instructions less reliably than stronger hosted models.
+- Conversation history is saved to `~/.openclone/conversations/<slug>/<sessionId>.json` by default. Tell users they can inspect or delete those files directly, or pass `--no-persist` to skip writing them.
 - The Claude Code skill and the CLI are separate entry points that share markdown clone data.

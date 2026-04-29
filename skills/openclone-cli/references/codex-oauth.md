@@ -7,8 +7,8 @@ Use this when the user wants to reuse a local Codex login instead of managing a 
 - The user must already be logged into Codex locally.
 - The CLI only uses Codex OAuth when explicitly requested.
 - This path is intended for personal local-machine use, not hosted services or token sharing.
-- It uses the Codex backend transport, not the normal OpenAI API base URL.
-- By default, openclone enables Codex response item persistence so multi-step conversations and tool calls can refer to previous response items reliably.
+- It uses the Codex backend transport (`https://chatgpt.com/backend-api/codex`), not the normal OpenAI API base URL.
+- Codex response item persistence (`store=true`) is **off by default** because the ChatGPT backend currently rejects `store=true` for ChatGPT-tier OAuth tokens with `Store must be set to false` (HTTP 400). The CLI sends every turn's full message array, so multi-turn conversations work without `previous_response_id`.
 
 ## Commands
 
@@ -25,15 +25,17 @@ export OPENCLONE_MODEL=gpt-5.5
 openclone chat douglas
 ```
 
-Privacy-sensitive local runs may disable response item persistence, but this can reintroduce `Item ... not found` errors during long conversations or tool use:
+If a future ChatGPT backend change re-enables `store=true` and the user wants the server-side response cache (for `previous_response_id` chains), opt in explicitly:
 
 ```bash
-export OPENCLONE_CODEX_STORE=0
+export OPENCLONE_CODEX_STORE=1
 ```
+
+If the backend still refuses, the request will fail with a 400 and the user should leave the variable unset.
 
 ## Troubleshooting
 
-- If `Item ... not found` appears, make sure `OPENCLONE_CODEX_STORE` is not set to `0`; the Codex backend needs stored response items for AI SDK response references.
-- If auth fails, ask the user to confirm Codex works locally first.
+- `Bad Request 400 Store must be set to false` — `OPENCLONE_CODEX_STORE=1` is set but the backend rejects it. Unset the variable and retry; the CLI will default to `store=false` and work.
+- If auth fails, ask the user to confirm Codex works locally first (e.g. `~/.codex/auth.json` exists and is fresh).
 - If a custom auth location is needed, use `OPENCLONE_CODEX_AUTH_FILE`.
 - Do not ask users to paste or share Codex tokens.
