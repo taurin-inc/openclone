@@ -1,8 +1,10 @@
 # openclone
 
+**한국어** | [English](README_en.md) | [简体中文](README_zh.md)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-8A2BE2)](https://docs.claude.com/en/docs/claude-code)
-[![Status](https://img.shields.io/badge/Status-v0.2-brightgreen)](CHANGELOG.md)
+[![Status](https://img.shields.io/badge/Status-v0.3.0-brightgreen)](CHANGELOG.md)
 ![Made in Korea](https://img.shields.io/badge/Made%20in-Korea-blue)
 
 > **Claude Code 안에서 AI 페르소나 클론과 대화하는 스킬.**
@@ -42,11 +44,20 @@
 
 ## 설치
 
-openclone은 **Claude Code**를 1급 호스트로 지원하며, **Codex CLI**에 대한 실험적 설치도 제공합니다. 사용 중인 호스트의 섹션을 따라가세요.
+openclone은 **두 가지 사용 경로**를 제공합니다. 본인 환경에 맞는 섹션을 따라가세요.
 
-### Claude Code (권장)
+| 경로 | 어떨 때 쓰나 | 호스트 |
+|---|---|---|
+| **A. Claude Code 스킬** | Claude Code에서 `/openclone` 슬래시 명령으로 클론과 대화하고 싶을 때 | Claude Code |
+| **B. Standalone CLI** | 어떤 터미널에서든 `openclone` 명령어로 OpenAI/Ollama/Codex 모델을 써서 클론과 대화하고 싶을 때 | macOS/Linux/WSL2 |
 
-#### 옵션 A — Claude Code에 맡기기
+---
+
+### A. Claude Code 스킬로 설치
+
+Claude Code 안에서 `/openclone` 슬래시 명령, 단체방, 카테고리 패널, 자연어 활성화 등 모든 인터랙션 기능을 쓸 수 있습니다.
+
+#### 옵션 A1 — Claude Code에 맡기기
 
 Claude Code 세션에 아래 문단을 붙여넣으세요.
 
@@ -58,7 +69,7 @@ then restart Claude Code (or start a new session) so the skill's hooks are picke
 
 Claude Code가 설치를 대신 수행하고, `~/.claude/CLAUDE.md`에 사용법 메모를 추가해 앞으로 자연스럽게 인식하도록 만듭니다.
 
-#### 옵션 B — 터미널에서 직접
+#### 옵션 A2 — 터미널에서 직접
 
 ```bash
 git clone --filter=blob:none --sparse --depth=1 \
@@ -69,11 +80,126 @@ git clone --filter=blob:none --sparse --depth=1 \
   && ./setup
 ```
 
-설치 후 Claude Code 세션을 재시작하면 `/openclone`이 바로 동작합니다.
+설치 후 Claude Code 세션을 재시작하면 `/openclone`이 바로 동작합니다. Claude Code 사용법은 아래 [이용 방법](#이용-방법) 섹션을 참고하세요.
 
-### Codex CLI (실험적)
+---
 
-> ⚠️ **현재는 파일 참조 수준의 실험 지원입니다.** `./setup`이 Claude Code 전용 경로·훅·statusline을 건드리므로 **Codex 환경에서는 `./setup`을 실행하지 마세요.** 슬래시 커맨드 `/openclone`, `UserPromptSubmit`/`SessionStart` 훅 기반 자동 주입, statusline, 백그라운드 자동 업데이트는 아직 동작하지 않으며, 현재는 `clones/<slug>/persona.md`·`knowledge/` 파일을 Codex가 읽도록 배치하는 정도만 가능합니다. 네이티브 `--host=codex` 인스톨러는 추후 릴리스 예정입니다.
+### B. Standalone CLI로 설치
+
+`openclone` 바이너리 한 줄 설치로 어떤 터미널에서든 클론과 대화할 수 있습니다. OpenAI-compatible API, Codex OAuth, 로컬 Ollama 모델을 모두 지원합니다.
+
+#### B1. 설치
+
+```bash
+npm install -g @openclone/openclone
+```
+
+설치되면 `openclone` 명령어가 PATH에 추가됩니다. 14개 기본 클론과 모든 knowledge 파일이 패키지에 포함되어 있어 바로 쓸 수 있습니다.
+
+```bash
+openclone list
+openclone chat douglas
+```
+
+#### B2. (권장) Vercel Agent Skills로 사용법 안내 받기
+
+이 저장소는 Claude Code·Cursor·Copilot·Codex·Cline·Gemini 등 18+ AI 코딩 에이전트가 인식할 수 있는 [Vercel Agent Skill](https://vercel.com/docs/agent-resources/skills)을 함께 제공합니다. 설치하면 사용 중인 에이전트가 openclone CLI 사용법(설치, provider 선택, 세션 관리, 트러블슈팅)을 직접 안내해 줍니다.
+
+```bash
+npx skills add open-clone/openclone --skill openclone-cli
+```
+
+설치 후 에이전트에게 자연어로 물어보세요.
+
+```text
+"openclone CLI를 처음 쓰는데 OpenAI API 키로 시작하려면?"
+"openclone history 명령으로 이전 대화 어떻게 이어가지?"
+"Ollama 로컬 모델로 openclone 돌리고 싶어"
+"openclone chat에서 --resume과 --resume=<id> 차이가 뭐야?"
+```
+
+에이전트가 `skills/openclone-cli/SKILL.md`와 그 안의 `references/*.md`(provider별 setup, 세션 영속화, 트러블슈팅 등)를 필요할 때만 읽어와서 짧고 실행 가능한 답을 줍니다.
+
+설치된 스킬 확인·업데이트:
+
+```bash
+npx skills list
+npx skills check
+npx skills update
+```
+
+#### B3. 직접 사용하기
+
+```bash
+openclone list                                                # 사용 가능한 클론 목록
+openclone status                                              # 활성 클론·방 상태
+openclone chat <slug> --prompt "질문"                          # 단일 응답
+openclone chat <slug>                                         # 인터랙티브 모드
+openclone history <slug>                                      # 한 클론의 저장된 세션
+openclone history --all                                       # 모든 클론 세션 (orphan 표시 포함)
+openclone chat <slug> --resume                                # 가장 최근 세션 이어가기
+openclone chat <slug> --resume=<SESSION_ID>                   # 특정 세션 이어가기
+openclone chat <slug> --no-persist                            # 이번 세션은 디스크에 저장 안 함
+```
+
+#### B4. Provider 설정
+
+기본 provider는 OpenAI-compatible이고 기본 모델은 `gpt-5.5`입니다. 환경변수로 한 번 세팅하거나 매번 플래그로 지정할 수 있습니다.
+
+**OpenAI-compatible API:**
+
+```bash
+export OPENCLONE_API_KEY="sk-..."        # 또는 OPENAI_API_KEY
+export OPENCLONE_MODEL="gpt-5.5"
+openclone chat douglas
+```
+
+**Codex OAuth (이미 Codex CLI에 로그인된 머신):**
+
+```bash
+openclone chat douglas --use-codex-auth --model gpt-5.5
+```
+
+ChatGPT 백엔드가 ChatGPT 일반 사용자 토큰에 대해 `store=true` 요청을 거부하기 때문에 Codex OAuth는 기본적으로 response item persistence를 끕니다(`store=false`). CLI가 매 턴마다 전체 messages 배열을 직접 전송하므로 `previous_response_id` 없이도 멀티턴 대화가 정상 동작합니다.
+
+**로컬 Ollama:**
+
+```bash
+ollama serve &                          # 이미 띄워져 있으면 생략
+openclone chat douglas --provider ollama --model llama3.2
+```
+
+자세한 provider별 셋업, 트러블슈팅, 세션 관리 동작은 위 [B2 Vercel Agent Skill](#b2-권장-vercel-agent-skills로-사용법-안내-받기)을 통해 에이전트에게 묻거나, `skills/openclone-cli/references/*.md`를 직접 보세요.
+
+#### B5. 인터랙티브 모드 명령
+
+```text
+/help     명령어 안내
+/compact  오래된 대화를 즉시 요약
+/clear    in-memory history와 요약 비우기
+/bye      대화 종료 (또는 /exit, /quit)
+```
+
+대화는 매 턴마다 그리고 `/bye` 시점에 `~/.openclone/conversations/<slug>/<sessionId>.json`로 평문 JSON으로 저장됩니다. `--resume`으로 다시 시작하면 배너에 `[resumed: N message(s)]`가 뜨고 이전 대화 전체가 터미널에 다시 출력되어, 위로 스크롤하면 무슨 이야기를 했는지 그대로 보입니다. 마지막에 `--- continuing conversation ---` 구분선과 새 `>>>` 프롬프트가 뜹니다. 종료 시 `[session saved: <path>]`가 표시됩니다.
+
+긴 대화는 약 24,000자(`OPENCLONE_COMPACT_MAX_CHARS`)를 넘으면 오래된 메시지를 요약하고 최근 6턴(`OPENCLONE_COMPACT_KEEP_TURNS`)은 원문으로 유지합니다. 요약 길이는 `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS`(기본 6,000자)로 조정할 수 있습니다. 압축된 요약도 세션 JSON에 함께 저장되어 `--resume` 시 복원됩니다.
+
+#### B6. 로컬 체크아웃에서 개발자로 실행
+
+```bash
+git clone https://github.com/open-clone/openclone.git
+cd openclone
+npm install
+npm run build
+node dist/cli/index.js list
+node dist/cli/index.js chat douglas
+```
+
+---
+
+### C. Codex CLI (실험적)
+
+> ⚠️ **현재는 파일 참조 수준의 실험 지원입니다.** `./setup`이 Claude Code 전용 경로·훅·statusline을 건드리므로 **Codex 환경에서는 `./setup`을 실행하지 마세요.** 슬래시 커맨드 `/openclone`, `UserPromptSubmit`/`SessionStart` 훅 기반 자동 주입, statusline, 백그라운드 자동 업데이트는 아직 동작하지 않으며, 현재는 `clones/<slug>/persona.md`·`knowledge/` 파일을 Codex가 읽도록 배치하는 정도만 가능합니다. 네이티브 `--host=codex` 인스톨러는 추후 릴리스 예정입니다. 단순히 OpenAI Codex 토큰으로 클론과 대화만 하고 싶다면 위 **B. Standalone CLI**의 `--use-codex-auth`를 쓰는 것이 더 간단합니다.
 
 레포만 Codex 스킬 경로에 sparse clone합니다.
 
@@ -100,6 +226,18 @@ cd ~/.codex/skills/openclone && git sparse-checkout add clones/<slug>/knowledge/
 ```
 
 **업데이트**: 자동 업데이트 훅이 없으므로 `git pull --ff-only`로 수동 갱신합니다. **제거**: 디렉터리 삭제(`rm -rf ~/.codex/skills/openclone`)로 충분합니다 — Claude Code처럼 settings.json을 건드리지 않기 때문입니다.
+
+### npm 배포
+
+GitHub Release를 `published` 상태로 만들면 `.github/workflows/publish-npm.yml`이 npm 배포를 수행합니다. Release tag가 npm 패키지 버전의 source of truth입니다.
+
+- tag 예: `v0.3.1` 또는 `0.3.1`
+- prerelease tag 예: `v0.4.0-beta.1`
+- 일반 release는 npm `latest` dist-tag로 배포
+- GitHub prerelease이거나 semver prerelease tag이면 npm `next` dist-tag로 배포
+- 저장소 secret `NPM_TOKEN`이 필요합니다.
+
+워크플로는 publish 전에 tag에서 version을 추출해 `package.json`/`package-lock.json`에 `npm version --no-git-tag-version`으로 반영한 뒤 validate/build/test/lint/audit를 통과해야 `npm publish --provenance`를 실행합니다.
 
 ### 플랫폼 지원
 

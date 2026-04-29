@@ -1,18 +1,14 @@
-// Validate the root SKILL.md:
-//   1. Frontmatter has required keys (name, description, allowed-tools) and
-//      the right `name`.
-//   2. Every `${CLAUDE_SKILL_DIR}/references/<file>.md` path referenced in the
-//      body actually exists on disk — catches typos and deleted refs before
-//      they ship to users as silent dispatcher errors.
-import { readFileSync, existsSync } from "node:fs";
+// Validate skill files:
+//   1. Root SKILL.md keeps the Claude Code openclone dispatcher contract.
+//   2. Nested skills under skills/*/SKILL.md have required frontmatter.
+//   3. Reference files named in skill bodies exist, catching broken progressive-disclosure links.
+import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, relative } from "node:path";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../..");
-const SKILL_PATH = resolve(ROOT, "SKILL.md");
-
-const REQUIRED_KEYS = ["name", "description", "allowed-tools"] as const;
+const ROOT_SKILL_PATH = resolve(ROOT, "SKILL.md");
 
 function fail(msgs: string[]): never {
   for (const m of msgs) console.error(`[FAIL] ${m}`);
@@ -44,37 +40,75 @@ function splitFrontmatter(
     const idx = raw.indexOf(":");
     if (idx < 0) continue;
     const key = raw.slice(0, idx).trim();
-    const value = raw.slice(idx + 1).trim();
+    const value = raw.slice(idx + 1).trim().replace(/^"|"$/g, "");
     fm[key] = value;
   }
   return { fm, body: lines.slice(end + 1).join("\n") };
 }
 
-if (!existsSync(SKILL_PATH)) fail(["SKILL.md missing at repo root"]);
-
-const { fm, body } = splitFrontmatter(readFileSync(SKILL_PATH, "utf8"), SKILL_PATH);
-const problems: string[] = [];
-for (const key of REQUIRED_KEYS) {
-  if (!fm[key]) problems.push(`SKILL.md: missing or empty '${key}'`);
-}
-if (fm.name && fm.name !== "openclone") {
-  problems.push(`SKILL.md: name must be 'openclone' (got '${fm.name}')`);
-}
-
-// Cross-check: every references/*.md file the dispatcher tells Claude to load
-// must exist. Pattern matches `${CLAUDE_SKILL_DIR}/references/<slug>.md`.
-const refPattern = /\$\{CLAUDE_SKILL_DIR\}\/references\/([a-z0-9][a-z0-9-]*\.md)/g;
-const seen = new Set<string>();
-let m: RegExpExecArray | null;
-while ((m = refPattern.exec(body)) !== null) {
-  const file = m[1];
-  if (seen.has(file)) continue;
-  seen.add(file);
-  const fp = resolve(ROOT, "references", file);
-  if (!existsSync(fp)) {
-    problems.push(`SKILL.md references non-existent file: references/${file}`);
+function validateFrontmatter(path: string, requiredKeys: readonly string[]): { fm: Record<string, string>; body: string } {
+  if (!existsSync(path)) fail([`${relative(ROOT, path)} missing`]);
+  const parsed = splitFrontmatter(readFileSync(path, "utf8"), path);
+  const problems: string[] = [];
+  for (const key of requiredKeys) {
+    if (!parsed.fm[key]) problems.push(`${relative(ROOT, path)}: missing or empty '${key}'`);
   }
+  if (problems.length > 0) fail(problems);
+  return parsed;
 }
 
-if (problems.length > 0) fail(problems);
-console.log(`[OK] SKILL.md frontmatter valid; ${seen.size} reference file(s) resolved`);
+function validateRootSkill(): number {
+  const { fm, body } = validateFrontmatter(ROOT_SKILL_PATH, ["name", "description", "allowed-tools"]);
+  const problems: string[] = [];
+  if (fm.name && fm.name !== "openclone") {
+    problems.push(`SKILL.md: name must be 'openclone' (got '${fm.name}')`);
+  }
+
+  const refPattern = /\$\{CLAUDE_SKILL_DIR\}\/references\/([a-z0-9][a-z0-9-]*\.md)/g;
+  const seen = new Set<string>();
+  let m: RegExpExecArray | null;
+  while ((m = refPattern.exec(body)) !== null) {
+    const file = m[1];
+    if (seen.has(file)) continue;
+    seen.add(file);
+    const fp = resolve(ROOT, "references", file);
+    if (!existsSync(fp)) {
+      problems.push(`SKILL.md references non-existent file: references/${file}`);
+    }
+  }
+  if (problems.length > 0) fail(problems);
+  return seen.size;
+}
+
+function validateNestedSkills(): number {
+  const skillsDir = resolve(ROOT, "skills");
+  if (!existsSync(skillsDir)) return 0;
+  let count = 0;
+  const problems: string[] = [];
+  for (const entry of readdirSync(skillsDir).sort()) {
+    const skillDir = resolve(skillsDir, entry);
+    if (!statSync(skillDir).isDirectory()) continue;
+    const skillPath = resolve(skillDir, "SKILL.md");
+    const { body } = validateFrontmatter(skillPath, ["name", "description"]);
+    count++;
+
+    const refPattern = /(?:\.\/)?references\/([A-Za-z0-9_.-]+\.md)/g;
+    const seen = new Set<string>();
+    let m: RegExpExecArray | null;
+    while ((m = refPattern.exec(body)) !== null) {
+      const file = m[1];
+      if (seen.has(file)) continue;
+      seen.add(file);
+      const fp = resolve(skillDir, "references", file);
+      if (!existsSync(fp)) {
+        problems.push(`${relative(ROOT, skillPath)} references non-existent file: references/${file}`);
+      }
+    }
+  }
+  if (problems.length > 0) fail(problems);
+  return count;
+}
+
+const rootRefs = validateRootSkill();
+const nestedSkills = validateNestedSkills();
+console.log(`[OK] SKILL.md frontmatter valid; ${rootRefs} root reference file(s) resolved; ${nestedSkills} nested skill(s) valid`);

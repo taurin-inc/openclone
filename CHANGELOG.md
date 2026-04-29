@@ -6,6 +6,16 @@
 
 ## [Unreleased]
 
+- Improve standalone CLI persona parity with Claude Code by adding AI SDK tools for local knowledge file reads plus best-effort `web_search`/`web_fetch`.
+- Default the OpenAI-compatible CLI provider model to `gpt-5.5`.
+- Add Ollama-run-like interactive conversation mode for `openclone chat <slug>` when no prompt/stdin is provided.
+- Add release-tag-driven npm publish workflow for GitHub Releases.
+- Rename npm package to scoped `@openclone/openclone` for the newly created npm org.
+- Add auto-compaction and manual `/compact` for long interactive CLI conversations.
+- Add a separate `openclone-cli` agent skill with provider-specific reference files for CLI usage help.
+
+- Add experimental Node.js CLI for Vercel AI SDK/OpenAI-compatible chat over existing markdown clones while preserving Claude Code support.
+
 ### Changed (breaking)
 
 - **카테고리 enum 재설계 (8종 → 7종).** `dev` → `tech`로 이름 변경, `marketing`·`hr` → `expert`로 병합, `pm`·`designer`·`writer` 제거, `influencer`·`politician`·`celebrity` 추가. 최종 7종: `vc`, `tech`, `founder`, `expert`, `influencer`, `politician`, `celebrity`. 내장 클론 5종(jojoldu, gbjeong, iid, josh, levi)의 `categories`/`primary_category` 마이그레이션. `references/categories.md`의 렌즈 정의도 새 카테고리 4종(expert, influencer, politician, celebrity)에 맞게 새로 작성. 사용자 클론에 구 카테고리(`dev`/`marketing`/`hr`/`pm`/`designer`/`writer`)가 남아 있다면 CI가 실패하므로 새 슬러그로 교체 필요.
