@@ -143,13 +143,26 @@ npx skills update
 ```bash
 openclone list                                                # 可用克隆列表
 openclone status                                              # 当前激活克隆与房间状态
-openclone chat <slug> --prompt "问题"                          # 单次回答
-openclone chat <slug>                                         # 交互模式
+openclone chat <slug> --prompt "问题"                          # 单次回答(会话自动保存)
+openclone chat <slug>                                         # 交互式 TUI 模式
 openclone history <slug>                                      # 某个克隆的已保存会话
 openclone history --all                                       # 所有克隆的会话(含孤儿标记)
-openclone chat <slug> --resume                                # 继续最近一次会话
-openclone chat <slug> --resume=<SESSION_ID>                   # 继续指定 ID 的会话
+openclone chat <slug> --resume                                # 继续最近一次会话(交互式)
+openclone chat <slug> --resume --prompt "follow-up"           # 继续最近一次会话(单次回答)
+openclone chat <slug> --resume=<SESSION_ID> --prompt "..."    # 继续指定 ID 的会话(单次回答)
 openclone chat <slug> --no-persist                            # 本次会话不写入磁盘
+```
+
+当传入 `--prompt` 时,CLI 只处理一轮就立刻退出。响应正文写到 `stdout`,会话标识符以 `[session: <id>]` 形式写到 `stderr`,这样代理就能在没有交互式终端的环境下也轻松串起多轮对话:
+
+```bash
+# 第一轮 — 捕获 stderr 拿到新的 sessionId
+openclone chat douglas --prompt "早期融资该怎么思考?" 2>session.log
+SESSION_ID=$(grep -oE '\[session: [^]]+\]' session.log | sed 's/\[session: //;s/\]//')
+
+# 后续轮次通过 --resume 复用同一会话
+openclone chat douglas --resume=$SESSION_ID --prompt "第一个选项再展开看看"
+openclone chat douglas --resume=$SESSION_ID --prompt "给我一些具体案例"
 ```
 
 #### B4. Provider 配置

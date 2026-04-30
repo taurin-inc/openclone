@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { CloneLoader } from "../lib/clone-loader.js";
 import { createCloneTools } from "../lib/clone-tools.js";
 import { runConversation, shouldStartInteractive, type ConversationPersistEvent } from "../lib/conversation.js";
+import { runSingleShot } from "../lib/single-shot.js";
 import {
   HistoryStore,
   newSessionId,
@@ -14,7 +15,6 @@ import {
 import { renderActiveClonePrompt } from "../lib/prompt-renderer.js";
 import { opencloneHome } from "../lib/paths.js";
 import { resolveProvider } from "../lib/provider-resolver.js";
-import { streamChat } from "../lib/stream-chat.js";
 
 interface ParsedArgs {
   command: string;
@@ -117,13 +117,16 @@ async function chatCommand(args: ParsedArgs): Promise<void> {
   const resumeSessionId = typeof resumeFlag === "string" ? resumeFlag : undefined;
   const persistDisabled = flagBoolean(args.flags, "noPersist") === true;
 
-  const interactive = resumeRequested ? true : shouldStartInteractive({
-    explicitPrompt: flagString(args.flags, "prompt"),
-    positionalPrompt,
-    stdinText: prompt,
-    stdinIsTTY: process.stdin.isTTY,
-    stdoutIsTTY: process.stdout.isTTY,
-  });
+  const hasExplicitPrompt = Boolean(flagString(args.flags, "prompt") ?? positionalPrompt ?? prompt);
+  const interactive = hasExplicitPrompt
+    ? false
+    : (resumeRequested ? true : shouldStartInteractive({
+      explicitPrompt: flagString(args.flags, "prompt"),
+      positionalPrompt,
+      stdinText: prompt,
+      stdinIsTTY: process.stdin.isTTY,
+      stdoutIsTTY: process.stdout.isTTY,
+    }));
 
   const loader = new CloneLoader();
   const clone = await loader.loadClone(slug);
@@ -216,14 +219,19 @@ async function chatCommand(args: ParsedArgs): Promise<void> {
     return;
   }
 
-  await streamChat({
+  await runSingleShot({
+    cloneSlug: slug,
+    cloneLabel: `${clone.displayName} (${clone.slug})`,
     model: provider.model,
+    modelId: provider.modelId,
+    providerName: provider.providerName,
     system: rendered.system,
-    messages: [{ role: "user", content: prompt }],
+    prompt,
     tools,
-    onText: (chunk) => process.stdout.write(chunk),
+    resumeRequested,
+    resumeSessionId,
+    persistDisabled,
   });
-  process.stdout.write("\n");
 }
 
 async function historyCommand(args: ParsedArgs): Promise<void> {

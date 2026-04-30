@@ -133,13 +133,28 @@ npx skills update
 ```bash
 openclone list                                                # 사용 가능한 클론 목록
 openclone status                                              # 활성 클론·방 상태
-openclone chat <slug> --prompt "질문"                          # 단일 응답
-openclone chat <slug>                                         # 인터랙티브 모드
+openclone chat <slug> --prompt "질문"                          # 단일 응답 (자동으로 세션 저장)
+openclone chat <slug>                                         # 인터랙티브 모드 (TUI)
 openclone history <slug>                                      # 한 클론의 저장된 세션
 openclone history --all                                       # 모든 클론 세션 (orphan 표시 포함)
-openclone chat <slug> --resume                                # 가장 최근 세션 이어가기
-openclone chat <slug> --resume=<SESSION_ID>                   # 특정 세션 이어가기
+openclone chat <slug> --resume                                # 가장 최근 세션 이어가기 (인터랙티브)
+openclone chat <slug> --resume --prompt "follow-up"           # 가장 최근 세션 이어가기 (단일 응답)
+openclone chat <slug> --resume=<SESSION_ID> --prompt "..."    # 특정 세션 이어가기 (단일 응답)
 openclone chat <slug> --no-persist                            # 이번 세션은 디스크에 저장 안 함
+```
+
+`--prompt`를 함께 쓰면 한 턴만 처리하고 즉시 종료합니다. 응답 본문은 `stdout`, 세션 식별자는 `stderr`에 `[session: <id>]` 형태로 출력되어 에이전트가 멀티턴 대화를 짤 때 깔끔하게 캡처할 수 있습니다.
+
+```bash
+# 첫 턴
+RESPONSE=$(openclone chat douglas --prompt "초기 펀드레이징 어떻게?")
+# stderr 의 [session: ...] 을 캡처하려면 2> 로 분리
+openclone chat douglas --prompt "초기 펀드레이징 어떻게?" 2>session.log
+SESSION_ID=$(grep -oE '\[session: [^]]+\]' session.log | sed 's/\[session: //;s/\]//')
+
+# 같은 세션으로 follow-up
+openclone chat douglas --resume=$SESSION_ID --prompt "그중 첫째 더 자세히"
+openclone chat douglas --resume=$SESSION_ID --prompt "사례 알려줘"
 ```
 
 #### B4. Provider 설정

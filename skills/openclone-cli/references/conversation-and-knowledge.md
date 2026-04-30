@@ -30,16 +30,51 @@ Behavior:
 ## Resuming a saved session
 
 ```bash
-openclone chat <slug> --resume                   # resume the newest session for that clone
-openclone chat <slug> --resume=<SESSION_ID>      # resume a specific session by id
+openclone chat <slug> --resume                          # resume newest session, interactive
+openclone chat <slug> --resume=<SESSION_ID>             # resume specific session, interactive
+openclone chat <slug> --resume --prompt "follow-up"     # resume newest session, single-shot
+openclone chat <slug> --resume=<SESSION_ID> --prompt "X"# resume specific session, single-shot
 ```
 
-`SESSION_ID` is the first column of `openclone history <slug>`. When resumed:
+`SESSION_ID` is the first column of `openclone history <slug>`. When resumed interactively:
 
 - A `[resumed: N message(s)]` banner is printed.
 - The prior conversation summary (if any) is replayed inside `--- prior summary ---` markers.
 - Every restored message is replayed to stdout in chronological order — user messages with `>>>` prefix, assistant responses unprefixed — followed by `--- continuing conversation ---` before the live prompt loop.
 - Scrolling up in the terminal shows the full prior dialogue, just like a normal chat client.
+
+## Single-shot mode for agents (multi-turn without an interactive terminal)
+
+When `--prompt` (or piped stdin) is provided, openclone processes one turn and exits immediately. This is the recommended path for agents that need to chain multiple turns without spawning a long-lived child process or driving a TUI.
+
+Stream split:
+
+- `stdout` — only the assistant's response text, terminated by `\n`. Capture with `RESPONSE=$(openclone chat ...)`.
+- `stderr` — `[session: <id>]` line after a successful turn, plus `[auto-compacted N older message(s)]` if compaction triggered.
+
+Patterns:
+
+```bash
+# First turn — also captures the new sessionId from stderr
+openclone chat douglas --prompt "How should I think about early-stage fundraising?" 2>session.log
+SESSION_ID=$(grep -oE '\[session: [^]]+\]' session.log | sed 's/\[session: //;s/\]//')
+
+# Follow-up turns reuse the same session via --resume
+openclone chat douglas --resume=$SESSION_ID --prompt "Drill into the first option"
+openclone chat douglas --resume=$SESSION_ID --prompt "Show me concrete examples"
+
+# `--resume` without an id picks the newest session for the clone (handy for ad-hoc agents)
+openclone chat douglas --resume --prompt "Quick follow-up on whatever we last discussed"
+
+# Each call writes the updated session JSON in place at
+# ~/.openclone/conversations/<slug>/<SESSION_ID>.json
+```
+
+Behavior:
+
+- Persistence is on by default. Pass `--no-persist` to run a stateless single-shot (no `[session: <id>]` line, no disk write).
+- Resuming a session that doesn't exist throws a clear error and exits non-zero.
+- Auto-compaction applies in single-shot too: if the prior history plus the new prompt exceeds `OPENCLONE_COMPACT_MAX_CHARS`, older turns are summarized before the LLM call and `[auto-compacted N older message(s)]` is emitted to stderr.
 
 ## Listing sessions
 
