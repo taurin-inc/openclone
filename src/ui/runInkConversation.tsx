@@ -9,6 +9,9 @@ import type { ConversationPersistEvent } from "../lib/conversation.js";
 
 export interface RunInkConversationOptions {
   cloneLabel: string;
+  speakerLabel?: string;
+  modelLabel?: string;
+  sessionLabel?: string;
   model: LanguageModel;
   system: string;
   tools: ToolSet;
@@ -31,6 +34,9 @@ export async function runInkConversation(options: RunInkConversationOptions): Pr
   const instance = render(
     <App
       cloneLabel={options.cloneLabel}
+      speakerLabel={options.speakerLabel}
+      modelLabel={options.modelLabel}
+      sessionLabel={options.sessionLabel}
       model={options.model}
       system={options.system}
       tools={options.tools}

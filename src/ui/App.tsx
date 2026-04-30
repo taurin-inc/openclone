@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Static, Text, useApp } from "ink";
+import Spinner from "ink-spinner";
 import type { LanguageModel, ModelMessage, ToolSet } from "ai";
 import {
   CONVERSATION_DEFAULTS,
@@ -14,11 +15,15 @@ import {
 import { streamChat } from "../lib/stream-chat.js";
 import { Markdown } from "./Markdown.js";
 import { MessageView, type MessageItem } from "./MessageView.js";
-import { PromptInput } from "./PromptInput.js";
+import { InputBox } from "./InputBox.js";
+import { HeaderBar } from "./HeaderBar.js";
 import { useStateAndRef } from "./hooks/useStateAndRef.js";
 
 export interface AppProps {
   cloneLabel: string;
+  speakerLabel?: string;
+  modelLabel?: string;
+  sessionLabel?: string;
   model: LanguageModel;
   system: string;
   tools: ToolSet;
@@ -38,23 +43,19 @@ function messageContentText(content: ModelMessage["content"]): string {
 }
 
 function buildBootItems(args: {
-  cloneLabel: string;
   initialMessages: ModelMessage[];
   initialSummary: string;
+  speakerLabel: string;
 }): MessageItem[] {
   const items: MessageItem[] = [];
-  items.push({ kind: "system", text: `openclone conversation: ${args.cloneLabel}` });
   if (args.initialMessages.length > 0 || args.initialSummary) {
     const banner = `[resumed: ${args.initialMessages.length} message(s)${args.initialSummary ? ", with prior summary" : ""}]`;
-    items.push({ kind: "system", text: banner });
+    items.push({ kind: "system-banner", text: banner });
   }
-  items.push({ kind: "system", text: conversationHelp() });
-  items.push({ kind: "system", text: "" });
   if (args.initialSummary) {
-    items.push({ kind: "system", text: "--- prior summary ---" });
+    items.push({ kind: "system-banner", text: "--- prior summary ---" });
     items.push({ kind: "system", text: args.initialSummary });
-    items.push({ kind: "system", text: "--- end summary ---" });
-    items.push({ kind: "system", text: "" });
+    items.push({ kind: "system-banner", text: "--- end summary ---" });
   }
   if (args.initialMessages.length > 0) {
     for (const message of args.initialMessages) {
@@ -62,11 +63,10 @@ function buildBootItems(args: {
       if (message.role === "user") {
         items.push({ kind: "user", text });
       } else {
-        items.push({ kind: "assistant", text });
+        items.push({ kind: "assistant", text, speakerLabel: args.speakerLabel });
       }
     }
-    items.push({ kind: "system", text: "--- continuing conversation ---" });
-    items.push({ kind: "system", text: "" });
+    items.push({ kind: "system-banner", text: "--- continuing conversation ---" });
   }
   return items;
 }
@@ -79,17 +79,14 @@ export function App(props: AppProps): React.JSX.Element {
     [props.initialMessages],
   );
   const initialSummary = props.initialSummary ?? "";
+  const speakerLabel = props.speakerLabel ?? "clone";
 
   const initialItems = useMemo(
-    () => buildBootItems({
-      cloneLabel: props.cloneLabel,
-      initialMessages,
-      initialSummary,
-    }),
-    [props.cloneLabel, initialMessages, initialSummary],
+    () => buildBootItems({ initialMessages, initialSummary, speakerLabel }),
+    [initialMessages, initialSummary, speakerLabel],
   );
 
-  const [committed, committedRef, setCommitted] = useStateAndRef<MessageItem[]>(initialItems);
+  const [committed, , setCommitted] = useStateAndRef<MessageItem[]>(initialItems);
   const [, messagesRef, setMessages] = useStateAndRef<ModelMessage[]>(initialMessages);
   const [, summaryRef, setSummary] = useStateAndRef<string>(initialSummary);
   const [streaming, setStreaming] = useState<string | null>(null);
@@ -104,9 +101,6 @@ export function App(props: AppProps): React.JSX.Element {
   const appendItem = (item: MessageItem) => {
     setCommitted((previous) => [...previous, item]);
   };
-  const appendItems = (items: MessageItem[]) => {
-    setCommitted((previous) => [...previous, ...items]);
-  };
 
   const persist = async (reason: "turn" | "exit") => {
     if (!props.onPersist) return;
@@ -118,7 +112,7 @@ export function App(props: AppProps): React.JSX.Element {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      appendItem({ kind: "system", text: `[openclone: failed to persist conversation: ${message}]` });
+      appendItem({ kind: "system-banner", text: `[openclone: failed to persist conversation: ${message}]` });
     }
   };
 
@@ -135,7 +129,7 @@ export function App(props: AppProps): React.JSX.Element {
     setSummary(newSummary);
     setMessages(split.recentMessages);
     appendItem({
-      kind: "system",
+      kind: "system-banner",
       text: `[${reason === "auto" ? "auto-" : ""}compacted ${split.oldMessages.length} older message(s)]`,
     });
     return true;
@@ -174,7 +168,7 @@ export function App(props: AppProps): React.JSX.Element {
       appendItem({ kind: "user", text: raw.trim() });
       setMessages([]);
       setSummary("");
-      appendItem({ kind: "system", text: "Conversation history and summary cleared." });
+      appendItem({ kind: "system-banner", text: "Conversation history and summary cleared." });
       await persist("turn");
       return;
     }
@@ -185,7 +179,7 @@ export function App(props: AppProps): React.JSX.Element {
       try {
         const compacted = await compactNow("manual");
         if (!compacted) {
-          appendItem({ kind: "system", text: "Not enough older conversation history to compact." });
+          appendItem({ kind: "system-banner", text: "Not enough older conversation history to compact." });
         } else {
           await persist("turn");
         }
@@ -223,12 +217,12 @@ export function App(props: AppProps): React.JSX.Element {
 
       const assistantMessage: ModelMessage = { role: "assistant", content: response };
       setMessages((previous) => [...previous, assistantMessage]);
-      appendItem({ kind: "assistant", text: response });
+      appendItem({ kind: "assistant", text: response, speakerLabel });
       setStreaming(null);
       await persist("turn");
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      appendItem({ kind: "system", text: `[openclone: error during streaming: ${message}]` });
+      appendItem({ kind: "system-banner", text: `[openclone: error during streaming: ${message}]` });
       setStreaming(null);
     } finally {
       setBusy(false);
@@ -243,15 +237,34 @@ export function App(props: AppProps): React.JSX.Element {
 
   return (
     <Box flexDirection="column">
-      <Static items={committed.map((item, index) => ({ ...item, key: `m-${index}` }))}>
-        {(item) => <MessageView key={(item as { key: string }).key} item={item} />}
+      <HeaderBar
+        cloneLabel={props.cloneLabel}
+        modelLabel={props.modelLabel}
+        sessionLabel={props.sessionLabel}
+      />
+      <Static items={committed.map((item, index) => ({ ...item, _key: `m-${index}` }))}>
+        {(item) => <MessageView key={(item as { _key: string })._key} item={item} />}
       </Static>
       {streaming !== null ? (
-        <Box flexDirection="column">
-          <Markdown text={streaming || ""} />
+        <Box flexDirection="column" marginBottom={1}>
+          <Box>
+            <Text color="cyan" bold>{speakerLabel} </Text>
+            <Text color="gray" dimColor>›</Text>
+            <Text> </Text>
+            <Text color="magenta"><Spinner type="dots" /></Text>
+          </Box>
+          <Box paddingLeft={2}>
+            <Text>{streaming || ""}</Text>
+          </Box>
         </Box>
       ) : null}
-      {!exited ? <PromptInput disabled={streaming !== null} onSubmit={handleSubmit} onAbort={handleAbort} /> : null}
+      {!exited ? (
+        <InputBox
+          disabled={streaming !== null}
+          onSubmit={handleSubmit}
+          onAbort={handleAbort}
+        />
+      ) : null}
     </Box>
   );
 }

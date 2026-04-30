@@ -197,7 +197,12 @@ async function chatCommand(args: ParsedArgs): Promise<void> {
     const useInkTui = process.stdout.isTTY === true && process.stdin.isTTY === true;
     if (useInkTui) {
       const { runInkConversation } = await import("../ui/runInkConversation.js");
-      await runInkConversation(conversationOptions);
+      await runInkConversation({
+        ...conversationOptions,
+        speakerLabel: clone.displayName,
+        modelLabel: provider.modelId,
+        sessionLabel: `ses ${sessionId.slice(11, 16)}`,
+      });
     } else {
       await runConversation(conversationOptions);
     }

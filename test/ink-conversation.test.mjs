@@ -48,7 +48,8 @@ test("ink: prints clone header on boot", async () => {
   await submitLine(io.stdin, "/bye");
   await run;
   const text = captured(io.stdout);
-  assert.match(text, /openclone conversation: Alice \(alice\)/);
+  assert.match(text, /openclone/);
+  assert.match(text, /Alice \(alice\)/);
 });
 
 test("ink: keeps in-memory message history across turns", async () => {
@@ -240,7 +241,7 @@ test("ink: seeds initial history and summary from options", async () => {
   assert.match(text, /--- prior summary ---/);
   assert.match(text, /user already discussed onboarding/);
   assert.match(text, /--- end summary ---/);
-  assert.match(text, />>> previous question/);
+  assert.match(text, /previous question/);
   assert.match(text, /previous answer/);
   assert.match(text, /--- continuing conversation ---/);
 });
@@ -265,9 +266,9 @@ test("ink: resumed history is replayed in chronological order before new prompt"
   await run;
 
   const text = captured(io.stdout);
-  const idx1 = text.indexOf(">>> msg-1");
+  const idx1 = text.indexOf("msg-1");
   const idx2 = text.indexOf("reply-1");
-  const idx3 = text.indexOf(">>> msg-2");
+  const idx3 = text.indexOf("msg-2");
   const idx4 = text.indexOf("reply-2");
   const idxContinue = text.indexOf("--- continuing conversation ---");
   assert.ok(idx1 >= 0 && idx2 > idx1 && idx3 > idx2 && idx4 > idx3, "messages must replay in chronological order");

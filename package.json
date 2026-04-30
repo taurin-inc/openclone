@@ -24,6 +24,7 @@
     "ai": "^6.0.168",
     "ai-sdk-ollama": "^3.8.3",
     "ink": "^7.0.1",
+    "ink-spinner": "^5.0.0",
     "marked": "^14.1.4",
     "marked-terminal": "^7.3.0",
     "openai-oauth-provider": "^1.0.3",
