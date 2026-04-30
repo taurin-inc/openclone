@@ -48,9 +48,9 @@ export interface CompactionSplit {
   recentMessages: ModelMessage[];
 }
 
-const DEFAULT_COMPACT_MAX_CHARS = readPositiveInt(process.env.OPENCLONE_COMPACT_MAX_CHARS, 24000);
-const DEFAULT_COMPACT_KEEP_TURNS = readPositiveInt(process.env.OPENCLONE_COMPACT_KEEP_TURNS, 6);
-const DEFAULT_COMPACT_SUMMARY_MAX_CHARS = readPositiveInt(process.env.OPENCLONE_COMPACT_SUMMARY_MAX_CHARS, 6000);
+const DEFAULT_COMPACT_MAX_CHARS = readPositiveInt(process.env.OPENCLONE_COMPACT_MAX_CHARS, 350000);
+const DEFAULT_COMPACT_KEEP_TURNS = readPositiveInt(process.env.OPENCLONE_COMPACT_KEEP_TURNS, 8);
+const DEFAULT_COMPACT_SUMMARY_MAX_CHARS = readPositiveInt(process.env.OPENCLONE_COMPACT_SUMMARY_MAX_CHARS, 20000);
 
 export const CONVERSATION_DEFAULTS = {
   compactMaxChars: DEFAULT_COMPACT_MAX_CHARS,

@@ -57,10 +57,12 @@ The CLI keeps user and assistant turns in memory for the current process and rep
 Long conversations are compacted automatically:
 
 ```bash
-OPENCLONE_COMPACT_MAX_CHARS=24000
-OPENCLONE_COMPACT_KEEP_TURNS=6
-OPENCLONE_COMPACT_SUMMARY_MAX_CHARS=6000
+OPENCLONE_COMPACT_MAX_CHARS=350000
+OPENCLONE_COMPACT_KEEP_TURNS=8
+OPENCLONE_COMPACT_SUMMARY_MAX_CHARS=20000
 ```
+
+Defaults are sized for a 250K-token context window at roughly 70% utilization. Drop `OPENCLONE_COMPACT_MAX_CHARS` to a smaller value (e.g. `60000`) for small-context local models or to keep per-turn token cost down.
 
 Older turns are summarized. Recent turns stay verbatim. The compacted summary is part of the persisted session, so it survives across `--resume`.
 

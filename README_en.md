@@ -188,7 +188,7 @@ For per-provider setup details, troubleshooting, and session-management behavior
 
 Conversations are saved on every turn and on `/bye` to `~/.openclone/conversations/<slug>/<sessionId>.json` as plaintext JSON. When you start with `--resume`, a `[resumed: N message(s)]` banner is printed and the entire prior conversation is replayed to the terminal — scroll up to see exactly what was said. A `--- continuing conversation ---` separator and a fresh `>>>` prompt follow. On exit you'll see `[session saved: <path>]`.
 
-When a conversation grows past about 24,000 characters (`OPENCLONE_COMPACT_MAX_CHARS`), older messages are summarized while the most recent 6 turns (`OPENCLONE_COMPACT_KEEP_TURNS`) are kept verbatim. The summary length cap is `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS` (default 6,000). The compacted summary is also stored in the session JSON, so it survives across `--resume`.
+When a conversation grows past about 350,000 characters (`OPENCLONE_COMPACT_MAX_CHARS`, roughly 70% of a 250K-token context window), older messages are summarized while the most recent 8 turns (`OPENCLONE_COMPACT_KEEP_TURNS`) are kept verbatim. The summary length cap is `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS` (default 20,000). Set `OPENCLONE_COMPACT_MAX_CHARS` to a smaller value if you target a smaller-context model (e.g. an 8B-class local Ollama) or want to reduce per-turn token cost. The compacted summary is also stored in the session JSON, so it survives across `--resume`.
 
 #### B6. Run from a local checkout (developers)
 

@@ -192,7 +192,7 @@ openclone chat douglas --provider ollama --model llama3.2
 
 会话会在每一轮以及 `/bye` 时,以纯文本 JSON 的形式保存到 `~/.openclone/conversations/<slug>/<sessionId>.json`。当你以 `--resume` 启动时,会先打印 `[resumed: N message(s)]` 提示,并把之前的整段对话原样回放到终端 — 向上滚动即可看到完整历史。最后会出现 `--- continuing conversation ---` 分隔符,以及新的 `>>>` 提示符。结束时会显示 `[session saved: <path>]`。
 
-当一段对话超过约 24,000 字符(`OPENCLONE_COMPACT_MAX_CHARS`)时,较旧的消息会被压缩为摘要,而最近 6 轮(`OPENCLONE_COMPACT_KEEP_TURNS`)保持原文。摘要长度由 `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS` 控制(默认 6,000 字符)。被压缩的摘要也会保存在 session JSON 中,因此 `--resume` 时仍会还原。
+当一段对话超过约 350,000 字符(`OPENCLONE_COMPACT_MAX_CHARS`,大致相当于 250K-token 上下文窗口的 70%)时,较旧的消息会被压缩为摘要,而最近 8 轮(`OPENCLONE_COMPACT_KEEP_TURNS`)保持原文。摘要长度由 `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS` 控制(默认 20,000 字符)。如果使用上下文较小的模型(例如 8B 级本地 Ollama)或想降低每轮 token 成本,可以将 `OPENCLONE_COMPACT_MAX_CHARS` 调小。被压缩的摘要也会保存在 session JSON 中,因此 `--resume` 时仍会还原。
 
 #### B6. 从本地仓库运行(开发者)
 
