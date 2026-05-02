@@ -48,9 +48,15 @@ export interface CompactionSplit {
   recentMessages: ModelMessage[];
 }
 
-const DEFAULT_COMPACT_MAX_CHARS = readPositiveInt(process.env.OPENCLONE_COMPACT_MAX_CHARS, 24000);
-const DEFAULT_COMPACT_KEEP_TURNS = readPositiveInt(process.env.OPENCLONE_COMPACT_KEEP_TURNS, 6);
-const DEFAULT_COMPACT_SUMMARY_MAX_CHARS = readPositiveInt(process.env.OPENCLONE_COMPACT_SUMMARY_MAX_CHARS, 6000);
+const DEFAULT_COMPACT_MAX_CHARS = readPositiveInt(process.env.OPENCLONE_COMPACT_MAX_CHARS, 350000);
+const DEFAULT_COMPACT_KEEP_TURNS = readPositiveInt(process.env.OPENCLONE_COMPACT_KEEP_TURNS, 8);
+const DEFAULT_COMPACT_SUMMARY_MAX_CHARS = readPositiveInt(process.env.OPENCLONE_COMPACT_SUMMARY_MAX_CHARS, 20000);
+
+export const CONVERSATION_DEFAULTS = {
+  compactMaxChars: DEFAULT_COMPACT_MAX_CHARS,
+  compactKeepTurns: DEFAULT_COMPACT_KEEP_TURNS,
+  compactSummaryMaxChars: DEFAULT_COMPACT_SUMMARY_MAX_CHARS,
+} as const;
 
 function readPositiveInt(value: string | undefined, fallback: number): number {
   if (value === undefined) return fallback;
@@ -116,7 +122,7 @@ export function systemWithConversationSummary(system: string, summary: string): 
   return `${system}\n\n--- conversation summary ---\n${summary.trim()}\n--- end conversation summary ---`;
 }
 
-async function compactMessages(options: {
+export async function compactMessages(options: {
   model: LanguageModel;
   stream: typeof streamChat;
   previousSummary: string;

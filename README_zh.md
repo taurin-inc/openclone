@@ -143,13 +143,26 @@ npx skills update
 ```bash
 openclone list                                                # 可用克隆列表
 openclone status                                              # 当前激活克隆与房间状态
-openclone chat <slug> --prompt "问题"                          # 单次回答
-openclone chat <slug>                                         # 交互模式
+openclone chat <slug> --prompt "问题"                          # 单次回答(会话自动保存)
+openclone chat <slug>                                         # 交互式 TUI 模式
 openclone history <slug>                                      # 某个克隆的已保存会话
 openclone history --all                                       # 所有克隆的会话(含孤儿标记)
-openclone chat <slug> --resume                                # 继续最近一次会话
-openclone chat <slug> --resume=<SESSION_ID>                   # 继续指定 ID 的会话
+openclone chat <slug> --resume                                # 继续最近一次会话(交互式)
+openclone chat <slug> --resume --prompt "follow-up"           # 继续最近一次会话(单次回答)
+openclone chat <slug> --resume=<SESSION_ID> --prompt "..."    # 继续指定 ID 的会话(单次回答)
 openclone chat <slug> --no-persist                            # 本次会话不写入磁盘
+```
+
+当传入 `--prompt` 时,CLI 只处理一轮就立刻退出。响应正文写到 `stdout`,会话标识符以 `[session: <id>]` 形式写到 `stderr`,这样代理就能在没有交互式终端的环境下也轻松串起多轮对话:
+
+```bash
+# 第一轮 — 捕获 stderr 拿到新的 sessionId
+openclone chat douglas --prompt "早期融资该怎么思考?" 2>session.log
+SESSION_ID=$(grep -oE '\[session: [^]]+\]' session.log | sed 's/\[session: //;s/\]//')
+
+# 后续轮次通过 --resume 复用同一会话
+openclone chat douglas --resume=$SESSION_ID --prompt "第一个选项再展开看看"
+openclone chat douglas --resume=$SESSION_ID --prompt "给我一些具体案例"
 ```
 
 #### B4. Provider 配置
@@ -192,7 +205,7 @@ openclone chat douglas --provider ollama --model llama3.2
 
 会话会在每一轮以及 `/bye` 时,以纯文本 JSON 的形式保存到 `~/.openclone/conversations/<slug>/<sessionId>.json`。当你以 `--resume` 启动时,会先打印 `[resumed: N message(s)]` 提示,并把之前的整段对话原样回放到终端 — 向上滚动即可看到完整历史。最后会出现 `--- continuing conversation ---` 分隔符,以及新的 `>>>` 提示符。结束时会显示 `[session saved: <path>]`。
 
-当一段对话超过约 24,000 字符(`OPENCLONE_COMPACT_MAX_CHARS`)时,较旧的消息会被压缩为摘要,而最近 6 轮(`OPENCLONE_COMPACT_KEEP_TURNS`)保持原文。摘要长度由 `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS` 控制(默认 6,000 字符)。被压缩的摘要也会保存在 session JSON 中,因此 `--resume` 时仍会还原。
+当一段对话超过约 350,000 字符(`OPENCLONE_COMPACT_MAX_CHARS`,大致相当于 250K-token 上下文窗口的 70%)时,较旧的消息会被压缩为摘要,而最近 8 轮(`OPENCLONE_COMPACT_KEEP_TURNS`)保持原文。摘要长度由 `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS` 控制(默认 20,000 字符)。如果使用上下文较小的模型(例如 8B 级本地 Ollama)或想降低每轮 token 成本,可以将 `OPENCLONE_COMPACT_MAX_CHARS` 调小。被压缩的摘要也会保存在 session JSON 中,因此 `--resume` 时仍会还原。
 
 #### B6. 从本地仓库运行(开发者)
 

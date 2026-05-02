@@ -1,6 +1,11 @@
 ---
 name: openclone-cli
-description: Help users install, configure, troubleshoot, and run the openclone Node.js CLI for AI persona chat. Use when users ask how to install openclone via npm, run openclone outside Claude Code, choose a provider (OpenAI-compatible API, Codex OAuth, or local Ollama), pick a model, list or resume saved conversation sessions (openclone history, --resume, --resume=<id>), use --no-persist, understand interactive chat mode, knowledge lookup, conversation persistence under ~/.openclone/conversations, or fix CLI errors.
+description: |
+  Use when the user wants to consult an AI persona "clone" for advice, strategy, analysis, or domain expertise—especially in startup, VC, tech, growth, HR, or business contexts. 
+  
+  Available official clones include: 장동욱(Brian, VC), 김철우(VC/founder), 권도균(Douglas, founder/VC), 조여준(Ethan, VC), 정구봉(tech/founder), 김동현(iid, HR), 신재명(Jay, founder), 조쉬(founder/expert), 이경훈(founder/VC), 김용훈(Levi, growth/CMO). 
+  
+  Also use when users ask how to install openclone via npm, run openclone outside Claude Code, choose a provider (OpenAI-compatible API, Codex OAuth, or local Ollama), pick a model, list or resume saved conversation sessions (openclone history, --resume, --resume=<id>), use --no-persist, understand interactive chat mode, knowledge lookup, conversation persistence under ~/.openclone/conversations, or fix CLI errors.
 ---
 
 # openclone CLI helper

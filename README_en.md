@@ -139,13 +139,26 @@ npx skills update
 ```bash
 openclone list                                                # Available clones
 openclone status                                              # Active clone / room state
-openclone chat <slug> --prompt "question"                     # Single-shot response
-openclone chat <slug>                                         # Interactive mode
+openclone chat <slug> --prompt "question"                     # Single-shot response (auto-saved session)
+openclone chat <slug>                                         # Interactive TUI mode
 openclone history <slug>                                      # Saved sessions for one clone
 openclone history --all                                       # Sessions across every clone (with orphan tags)
-openclone chat <slug> --resume                                # Resume the newest session
-openclone chat <slug> --resume=<SESSION_ID>                   # Resume a specific session
+openclone chat <slug> --resume                                # Resume newest session (interactive)
+openclone chat <slug> --resume --prompt "follow-up"           # Resume newest session (single-shot)
+openclone chat <slug> --resume=<SESSION_ID> --prompt "..."    # Resume a specific session (single-shot)
 openclone chat <slug> --no-persist                            # Run this session without writing to disk
+```
+
+When `--prompt` is supplied the CLI runs a single turn and exits immediately. The response body goes to `stdout`; the session identifier is printed to `stderr` as `[session: <id>]`, which makes it easy for agents to chain multi-turn conversations without an interactive terminal:
+
+```bash
+# First turn — capture stderr to learn the new sessionId
+openclone chat douglas --prompt "How should I think about early-stage fundraising?" 2>session.log
+SESSION_ID=$(grep -oE '\[session: [^]]+\]' session.log | sed 's/\[session: //;s/\]//')
+
+# Follow-up turns reuse the same session via --resume
+openclone chat douglas --resume=$SESSION_ID --prompt "Drill into the first option"
+openclone chat douglas --resume=$SESSION_ID --prompt "Show me concrete examples"
 ```
 
 #### B4. Provider configuration
@@ -188,7 +201,7 @@ For per-provider setup details, troubleshooting, and session-management behavior
 
 Conversations are saved on every turn and on `/bye` to `~/.openclone/conversations/<slug>/<sessionId>.json` as plaintext JSON. When you start with `--resume`, a `[resumed: N message(s)]` banner is printed and the entire prior conversation is replayed to the terminal — scroll up to see exactly what was said. A `--- continuing conversation ---` separator and a fresh `>>>` prompt follow. On exit you'll see `[session saved: <path>]`.
 
-When a conversation grows past about 24,000 characters (`OPENCLONE_COMPACT_MAX_CHARS`), older messages are summarized while the most recent 6 turns (`OPENCLONE_COMPACT_KEEP_TURNS`) are kept verbatim. The summary length cap is `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS` (default 6,000). The compacted summary is also stored in the session JSON, so it survives across `--resume`.
+When a conversation grows past about 350,000 characters (`OPENCLONE_COMPACT_MAX_CHARS`, roughly 70% of a 250K-token context window), older messages are summarized while the most recent 8 turns (`OPENCLONE_COMPACT_KEEP_TURNS`) are kept verbatim. The summary length cap is `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS` (default 20,000). Set `OPENCLONE_COMPACT_MAX_CHARS` to a smaller value if you target a smaller-context model (e.g. an 8B-class local Ollama) or want to reduce per-turn token cost. The compacted summary is also stored in the session JSON, so it survives across `--resume`.
 
 #### B6. Run from a local checkout (developers)
 
