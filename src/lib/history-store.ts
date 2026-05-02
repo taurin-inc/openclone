@@ -134,8 +134,16 @@ export class HistoryStore {
   }
 }
 
-export function newSessionId(now: Date = new Date()): string {
-  return now.toISOString().replace(/:/g, "-").replace(/\./g, "-");
+let lastGeneratedSessionTimeMs = 0;
+
+export function newSessionId(now?: Date): string {
+  const timestamp = now ?? new Date();
+  if (!now) {
+    const nextTimeMs = Math.max(timestamp.getTime(), lastGeneratedSessionTimeMs + 1);
+    lastGeneratedSessionTimeMs = nextTimeMs;
+    timestamp.setTime(nextTimeMs);
+  }
+  return timestamp.toISOString().replace(/:/g, "-").replace(/\./g, "-");
 }
 
 const SESSION_ID_TIMESTAMP_RE = /^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})-(\d{3})Z$/;
