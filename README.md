@@ -133,13 +133,28 @@ npx skills update
 ```bash
 openclone list                                                # 사용 가능한 클론 목록
 openclone status                                              # 활성 클론·방 상태
-openclone chat <slug> --prompt "질문"                          # 단일 응답
-openclone chat <slug>                                         # 인터랙티브 모드
+openclone chat <slug> --prompt "질문"                          # 단일 응답 (자동으로 세션 저장)
+openclone chat <slug>                                         # 인터랙티브 모드 (TUI)
 openclone history <slug>                                      # 한 클론의 저장된 세션
 openclone history --all                                       # 모든 클론 세션 (orphan 표시 포함)
-openclone chat <slug> --resume                                # 가장 최근 세션 이어가기
-openclone chat <slug> --resume=<SESSION_ID>                   # 특정 세션 이어가기
+openclone chat <slug> --resume                                # 가장 최근 세션 이어가기 (인터랙티브)
+openclone chat <slug> --resume --prompt "follow-up"           # 가장 최근 세션 이어가기 (단일 응답)
+openclone chat <slug> --resume=<SESSION_ID> --prompt "..."    # 특정 세션 이어가기 (단일 응답)
 openclone chat <slug> --no-persist                            # 이번 세션은 디스크에 저장 안 함
+```
+
+`--prompt`를 함께 쓰면 한 턴만 처리하고 즉시 종료합니다. 응답 본문은 `stdout`, 세션 식별자는 `stderr`에 `[session: <id>]` 형태로 출력되어 에이전트가 멀티턴 대화를 짤 때 깔끔하게 캡처할 수 있습니다.
+
+```bash
+# 첫 턴
+RESPONSE=$(openclone chat douglas --prompt "초기 펀드레이징 어떻게?")
+# stderr 의 [session: ...] 을 캡처하려면 2> 로 분리
+openclone chat douglas --prompt "초기 펀드레이징 어떻게?" 2>session.log
+SESSION_ID=$(grep -oE '\[session: [^]]+\]' session.log | sed 's/\[session: //;s/\]//')
+
+# 같은 세션으로 follow-up
+openclone chat douglas --resume=$SESSION_ID --prompt "그중 첫째 더 자세히"
+openclone chat douglas --resume=$SESSION_ID --prompt "사례 알려줘"
 ```
 
 #### B4. Provider 설정
@@ -182,7 +197,7 @@ openclone chat douglas --provider ollama --model llama3.2
 
 대화는 매 턴마다 그리고 `/bye` 시점에 `~/.openclone/conversations/<slug>/<sessionId>.json`로 평문 JSON으로 저장됩니다. `--resume`으로 다시 시작하면 배너에 `[resumed: N message(s)]`가 뜨고 이전 대화 전체가 터미널에 다시 출력되어, 위로 스크롤하면 무슨 이야기를 했는지 그대로 보입니다. 마지막에 `--- continuing conversation ---` 구분선과 새 `>>>` 프롬프트가 뜹니다. 종료 시 `[session saved: <path>]`가 표시됩니다.
 
-긴 대화는 약 24,000자(`OPENCLONE_COMPACT_MAX_CHARS`)를 넘으면 오래된 메시지를 요약하고 최근 6턴(`OPENCLONE_COMPACT_KEEP_TURNS`)은 원문으로 유지합니다. 요약 길이는 `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS`(기본 6,000자)로 조정할 수 있습니다. 압축된 요약도 세션 JSON에 함께 저장되어 `--resume` 시 복원됩니다.
+긴 대화는 약 350,000자(`OPENCLONE_COMPACT_MAX_CHARS`, 250K 토큰 컨텍스트 모델 기준 약 70% 지점)를 넘으면 오래된 메시지를 요약하고 최근 8턴(`OPENCLONE_COMPACT_KEEP_TURNS`)은 원문으로 유지합니다. 요약 길이는 `OPENCLONE_COMPACT_SUMMARY_MAX_CHARS`(기본 20,000자)로 조정할 수 있습니다. 컨텍스트가 작은 모델(예: Ollama 8B 이하)을 쓰거나 비용을 줄이고 싶다면 `OPENCLONE_COMPACT_MAX_CHARS`를 더 작게 잡으세요. 압축된 요약도 세션 JSON에 함께 저장되어 `--resume` 시 복원됩니다.
 
 #### B6. 로컬 체크아웃에서 개발자로 실행
 

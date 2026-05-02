@@ -49,6 +49,12 @@ test('sessionIdToIso reverses newSessionId', () => {
   assert.equal(sessionIdToIso('not-a-timestamp'), 'not-a-timestamp');
 });
 
+test('newSessionId stays unique for rapid session starts', () => {
+  const ids = Array.from({ length: 10 }, () => newSessionId());
+  assert.equal(new Set(ids).size, ids.length);
+  assert.deepEqual([...ids].sort(), ids);
+});
+
 test('save → load round-trips a session record', async () => {
   const { store, cleanup } = await makeStore();
   try {
